@@ -105,15 +105,24 @@ contract PhiVestingTest is Test {
 
         uint256 perMilestone = GRANT_AMOUNT / 8;
 
-        // At month 2 (cliff): milestones 0,1,2 unlock (months 1,1,2)
-        _warpMonths(2);
+        // At month 1 (cliff): milestones 0,1 unlock (months F(1)=1, F(2)=1)
+        _warpMonths(1);
         uint256 releasableNow = vesting.releasable(beneficiary);
-        assertEq(releasableNow, perMilestone * 3, "3 milestones at month 2");
+        assertEq(releasableNow, perMilestone * 2, "2 milestones at month 1");
 
         vm.prank(beneficiary);
         uint256 released = vesting.release();
-        assertEq(released, perMilestone * 3);
-        assertEq(token.balanceOf(beneficiary), perMilestone * 3);
+        assertEq(released, perMilestone * 2);
+        assertEq(token.balanceOf(beneficiary), perMilestone * 2);
+
+        // At month 2: milestone 2 unlocks (F(3)=2)
+        _warpMonths(1); // now at month 2
+        releasableNow = vesting.releasable(beneficiary);
+        assertEq(releasableNow, perMilestone);
+
+        vm.prank(beneficiary);
+        released = vesting.release();
+        assertEq(released, perMilestone);
 
         // At month 3: milestone 3 unlocks (F(4)=3)
         _warpMonths(1); // now at month 3
@@ -179,26 +188,11 @@ contract PhiVestingTest is Test {
         vesting.release();
     }
 
-    function test_cliff_atOneMonth_reverts() public {
+    function test_cliff_atOneMonth_releases() public {
         _createGrant(beneficiary, GRANT_AMOUNT, false);
 
-        // Warp to month 1 — still before cliff (cliff = 2 months)
+        // Warp to month 1 — cliff boundary (cliff = 1 month)
         _warpMonths(1);
-
-        // releasable should still be 0 (cliff not reached)
-        // Note: month 1 < CLIFF_MONTHS(2), so the view returns 0
-        assertEq(vesting.releasable(beneficiary), 0, "Nothing releasable before cliff");
-
-        vm.prank(beneficiary);
-        vm.expectRevert();
-        vesting.release();
-    }
-
-    function test_cliff_atTwoMonths_releases() public {
-        _createGrant(beneficiary, GRANT_AMOUNT, false);
-
-        // Warp to exactly month 2 (cliff boundary)
-        _warpMonths(2);
 
         uint256 rel = vesting.releasable(beneficiary);
         assertGt(rel, 0, "Should have releasable tokens at cliff");
@@ -206,6 +200,20 @@ contract PhiVestingTest is Test {
         vm.prank(beneficiary);
         uint256 released = vesting.release();
         assertGt(released, 0, "Should release tokens at cliff");
+    }
+
+    function test_cliff_atTwoMonths_releases() public {
+        _createGrant(beneficiary, GRANT_AMOUNT, false);
+
+        // Warp to month 2
+        _warpMonths(2);
+
+        uint256 rel = vesting.releasable(beneficiary);
+        assertGt(rel, 0, "Should have releasable tokens at month 2");
+
+        vm.prank(beneficiary);
+        uint256 released = vesting.release();
+        assertGt(released, 0, "Should release tokens at month 2");
     }
 
     // ---------------------------------------------------------------

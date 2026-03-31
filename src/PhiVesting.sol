@@ -35,8 +35,9 @@ contract PhiVesting is Ownable, ReentrancyGuard {
     /// @notice Number of unlock milestones (F(1) through F(8))
     uint256 public constant NUM_UNLOCKS = 8;
 
-    /// @notice Cliff duration in months: F(3) = 2
-    uint256 public constant CLIFF_MONTHS = 2;
+    /// @notice Cliff duration in months: F(1) = F(2) = 1
+    /// @dev Reduced from 2 to 1 so milestones 0 and 1 (both at month 1) are reachable.
+    uint256 public constant CLIFF_MONTHS = 1;
 
     /// @notice Total vesting duration in months: F(8) = 21
     uint256 public constant TOTAL_MONTHS = 21;
@@ -143,12 +144,16 @@ contract PhiVesting is Ownable, ReentrancyGuard {
         emit GrantCreated(beneficiary, amount, start, revocable);
     }
 
-    /// @notice Revoke a grant and return unvested tokens to admin
+    /// @notice Revoke a grant, release any vested-but-unclaimed tokens to the
+    ///         beneficiary, and return unvested tokens to admin.
     function revokeGrant(address beneficiary) external onlyOwner {
         VestingGrant storage g = grants[beneficiary];
         if (g.totalAmount == 0) revert NoGrant(beneficiary);
         if (!g.revocable) revert NotRevocable();
         if (g.revoked) revert AlreadyRevoked();
+
+        // Release vested-but-unclaimed tokens to beneficiary before revoking
+        uint256 vestedReleased = _releaseVested(beneficiary);
 
         g.revoked = true;
 
@@ -257,5 +262,45 @@ contract PhiVesting is Ownable, ReentrancyGuard {
     /// @dev Check if all 8 milestones have been released
     function _allMilestonesReleased(uint8 mask) internal pure returns (bool) {
         return mask == uint8((1 << NUM_UNLOCKS) - 1); // 0xFF
+    }
+
+    /// @dev Internal: release vested-but-unclaimed tokens to a beneficiary.
+    ///      Used by revokeGrant to ensure beneficiary gets what they earned.
+    /// @return totalReleased Amount of tokens released
+    function _releaseVested(address beneficiary) internal returns (uint256 totalReleased) {
+        VestingGrant storage g = grants[beneficiary];
+        if (g.totalAmount == 0 || g.revoked) return 0;
+
+        uint256 elapsed = block.timestamp > g.startTime ? block.timestamp - g.startTime : 0;
+        uint256 elapsedMonths = elapsed / MONTH_SECONDS;
+
+        if (elapsedMonths < CLIFF_MONTHS) return 0;
+
+        uint256 amountPerMilestone = g.totalAmount / NUM_UNLOCKS;
+
+        for (uint256 i = 0; i < NUM_UNLOCKS; i++) {
+            if (g.releasedMilestones & uint8(1 << uint8(i)) != 0) continue;
+
+            uint256 month = _fibUnlockMonth(i);
+            if (elapsedMonths >= month) {
+                g.releasedMilestones |= uint8(1 << uint8(i));
+
+                uint256 amount;
+                if (_allMilestonesReleased(g.releasedMilestones)) {
+                    amount = g.totalAmount - g.releasedAmount;
+                } else {
+                    amount = amountPerMilestone;
+                }
+
+                g.releasedAmount += amount;
+                totalReleased += amount;
+
+                emit TokensReleased(beneficiary, amount, i);
+            }
+        }
+
+        if (totalReleased > 0) {
+            token.safeTransfer(beneficiary, totalReleased);
+        }
     }
 }

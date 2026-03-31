@@ -185,6 +185,10 @@ library PhiMath {
     function phiInvPow(uint256 n) internal pure returns (uint256) {
         if (n == 0) return WAD;
         if (n == 1) return PHI_INV;
+        // For large n, φ^(-n) underflows to 0. Cap at n=86 where φ^86 > 2^127.
+        // Beyond this, wadDiv(WAD, phiPow(n)) rounds to 0 anyway, and
+        // phiPow(n) may overflow in matrix multiplication for n > ~170.
+        if (n > 86) return 0;
 
         uint256 phiN = phiPow(n);
         if (phiN == 0) return 0;
