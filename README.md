@@ -1,5 +1,7 @@
 # Artosphere (ARTS) -- Golden Ratio DeFi Protocol
 
+> **DISCLAIMER:** This software is experimental and UNAUDITED. Deployed on Base Sepolia TESTNET only. Do not use with real funds. Not financial advice. Not audited for production use. Use at your own risk.
+
 > The first cryptocurrency where every economic parameter derives from phi = (1+sqrt(5))/2.
 
 ## Overview

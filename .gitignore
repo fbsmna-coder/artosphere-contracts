@@ -3,3 +3,6 @@
 /broadcast
 .DS_Store
 *.swp
+.env
+broadcast/
+cache/
