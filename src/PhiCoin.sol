@@ -10,9 +10,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./PhiMath.sol";
 
 /**
- * @title PhiCoin (PHI)
+ * @title Artosphere (ARTS)
  * @author IBG Technologies
- * @notice ERC-20 token with Fibonacci emission, ERC20Votes, and ERC20Permit for governance.
+ * @notice ERC-20 token with Fibonacci emission, Proof-of-Patience, Spiral Burn, Anti-Whale limiter,
+ *         ERC20Votes, and ERC20Permit for governance.
  */
 contract PhiCoin is
     Initializable,
@@ -31,22 +32,34 @@ contract PhiCoin is
     uint256 public totalMinted;
     uint256 public lastMintedEpoch;
     bool public hasEverMinted;
-    uint256[46] private __gap;
+
+    // Proof-of-Patience: temporal mass tracking
+    mapping(address => uint256) public lastTransferTimestamp;
+
+    // Anti-Whale: governance-settable median balance
+    uint256 public medianBalance;
+
+    // Spiral Burn floor: F(34) = 9,227,465
+    uint256 public constant BURN_FLOOR = 9_227_465 * 1e18;
+
+    uint256[43] private __gap; // reduced from 46 by 3 (lastTransferTimestamp, medianBalance, BURN_FLOOR is constant)
 
     event EmissionMinted(address indexed minter, uint256 indexed toEpoch, uint256 amount);
     event MintedTo(address indexed to, uint256 amount);
     event TokensBurned(address indexed burner, uint256 amount);
+    event SpiralBurn(address indexed from, uint256 burnAmount, uint256 transferAmount);
 
     error ExceedsMaxSupply(uint256 requested, uint256 remaining);
     error NoEmissionAvailable();
     error InsufficientBalance(uint256 requested, uint256 available);
+    error WhaleTransferLimitExceeded(uint256 amount, uint256 maxAllowed);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() { _disableInitializers(); }
 
     function initialize(address admin) external initializer {
-        __ERC20_init("PhiCoin", "PHI");
-        __ERC20Permit_init("PhiCoin");
+        __ERC20_init("Artosphere", "ARTS");
+        __ERC20Permit_init("Artosphere");
         __ERC20Votes_init();
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -101,10 +114,124 @@ contract PhiCoin is
         emit TokensBurned(msg.sender, amount);
     }
 
+    // =========================================================================
+    // Proof-of-Patience: Temporal Mass
+    // =========================================================================
+
+    function _sqrt(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+
+    /// @notice Returns the temporal mass of an account in WAD (1e18 = 1.0x)
+    /// @dev Mass increases the longer tokens are held without transferring.
+    ///      New accounts start at 1.0. Capped at ~7.5x for 377+ days.
+    function temporalMass(address account) public view returns (uint256) {
+        uint256 lastTx = lastTransferTimestamp[account];
+        if (lastTx == 0) lastTx = block.timestamp; // new account = mass 1.0
+        uint256 holdingSeconds = block.timestamp - lastTx;
+        if (holdingSeconds == 0) return PhiMath.WAD; // 1.0 in WAD
+        uint256 holdingDays = holdingSeconds / 86400;
+        if (holdingDays == 0) return PhiMath.WAD;
+        if (holdingDays > 377) holdingDays = 377; // cap at F(14)
+        // Simple φ-log approximation: mass ≈ 1 + sqrt(holdingDays) / 3
+        uint256 bonus = (_sqrt(holdingDays * 1e18) * 1e9) / 3e18;
+        return PhiMath.WAD + bonus;
+    }
+
+    // =========================================================================
+    // Spiral Burn Engine
+    // =========================================================================
+
+    /// @notice Returns the current burn rate in WAD (decays as supply approaches BURN_FLOOR)
+    function spiralBurnRate() public view returns (uint256) {
+        uint256 currentSupply = totalSupply();
+        if (currentSupply <= BURN_FLOOR) return 0;
+        uint256 burnableRange = MAX_SUPPLY - BURN_FLOOR;
+        uint256 currentBurnable = currentSupply - BURN_FLOOR;
+        // 0.618% * (remaining/total) — decays linearly toward 0
+        return PhiMath.wadMul(618033988749894848, PhiMath.wadDiv(currentBurnable, burnableRange));
+    }
+
+    // =========================================================================
+    // Anti-Whale Golden Spiral Limiter
+    // =========================================================================
+
+    /// @notice Set median balance for whale detection (governance only)
+    function setMedianBalance(uint256 _median) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        medianBalance = _median;
+    }
+
+    /// @dev Checks if a transfer exceeds the whale limit
+    function _antiWhaleCheck(address from, uint256 amount) internal view {
+        if (medianBalance == 0) return; // not activated yet
+        uint256 senderBalance = balanceOf(from);
+        if (senderBalance <= medianBalance) return; // not a whale
+        // maxTransfer = totalSupply * median / (balance * φ)
+        uint256 maxTransfer = PhiMath.wadDiv(
+            totalSupply() * medianBalance,
+            PhiMath.wadMul(senderBalance, PhiMath.PHI)
+        ) / 1e18;
+        if (maxTransfer < 1e18) maxTransfer = 1e18; // minimum 1 ARTS
+        if (amount > maxTransfer) revert WhaleTransferLimitExceeded(amount, maxTransfer);
+    }
+
+    // =========================================================================
+    // Transfer overrides (burn-on-transfer + anti-whale + timestamp tracking)
+    // =========================================================================
+
+    /// @dev Core transfer logic with spiral burn and anti-whale
+    function _transferWithFeatures(address from, address to, uint256 amount) internal returns (uint256) {
+        // Anti-whale check
+        _antiWhaleCheck(from, amount);
+
+        // Spiral burn on regular transfers (not mint/burn)
+        uint256 burnAmount = 0;
+        if (from != address(0) && to != address(0) && amount > 0) {
+            uint256 burnRate = spiralBurnRate();
+            if (burnRate > 0) {
+                burnAmount = PhiMath.wadMul(amount, burnRate) / 1e18;
+                if (burnAmount > 0 && totalSupply() - burnAmount >= BURN_FLOOR) {
+                    _burn(from, burnAmount);
+                    amount -= burnAmount;
+                    emit SpiralBurn(from, burnAmount, amount);
+                } else {
+                    burnAmount = 0;
+                }
+            }
+        }
+        return amount;
+    }
+
+    function transfer(address to, uint256 value) public override(ERC20Upgradeable) returns (bool) {
+        uint256 adjustedValue = _transferWithFeatures(msg.sender, to, value);
+        return super.transfer(to, adjustedValue);
+    }
+
+    function transferFrom(address from, address to, uint256 value) public override(ERC20Upgradeable) returns (bool) {
+        uint256 adjustedValue = _transferWithFeatures(from, to, value);
+        return super.transferFrom(from, to, adjustedValue);
+    }
+
     // Required overrides for ERC20 + ERC20Votes + ERC20Permit
     function _update(address from, address to, uint256 value)
         internal override(ERC20Upgradeable, ERC20VotesUpgradeable)
-    { super._update(from, to, value); }
+    {
+        super._update(from, to, value);
+        // Proof-of-Patience: track last transfer timestamps
+        if (from != address(0)) {
+            lastTransferTimestamp[from] = block.timestamp;
+        }
+        if (to != address(0) && lastTransferTimestamp[to] == 0) {
+            lastTransferTimestamp[to] = block.timestamp;
+        }
+    }
 
     function nonces(address owner)
         public view override(ERC20PermitUpgradeable, NoncesUpgradeable)

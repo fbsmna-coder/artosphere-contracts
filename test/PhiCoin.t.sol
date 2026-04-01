@@ -36,11 +36,11 @@ contract PhiCoinTest is Test {
     // =========================================================================
 
     function test_Name() public view {
-        assertEq(phiCoin.name(), "PhiCoin");
+        assertEq(phiCoin.name(), "Artosphere");
     }
 
     function test_Symbol() public view {
-        assertEq(phiCoin.symbol(), "PHI");
+        assertEq(phiCoin.symbol(), "ARTS");
     }
 
     function test_Decimals() public view {
@@ -302,5 +302,122 @@ contract PhiCoinTest is Test {
 
         vm.warp(block.timestamp + 1200);
         assertEq(phiCoin.currentEpoch(), 2);
+    }
+
+    // =========================================================================
+    // Proof-of-Patience: Temporal Mass
+    // =========================================================================
+
+    function test_TemporalMass_NewAccount() public view {
+        // Account with no history should have mass = 1.0 WAD
+        uint256 mass = phiCoin.temporalMass(alice);
+        assertEq(mass, 1e18, "New account temporal mass should be 1.0 WAD");
+    }
+
+    function test_TemporalMass_IncreasesOverTime() public {
+        // Mint tokens to alice (this sets her lastTransferTimestamp via _update)
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 1000 * 1e18);
+
+        // Advance 30 days
+        vm.warp(block.timestamp + 30 days);
+        uint256 mass30 = phiCoin.temporalMass(alice);
+        assertTrue(mass30 > 1e18, "Mass after 30 days should be > 1.0");
+
+        // Advance to 100 days
+        vm.warp(block.timestamp + 70 days);
+        uint256 mass100 = phiCoin.temporalMass(alice);
+        assertTrue(mass100 > mass30, "Mass after 100 days should be > mass after 30 days");
+    }
+
+    function test_TemporalMass_ResetsOnTransfer() public {
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 1000 * 1e18);
+
+        // Advance 60 days to build temporal mass
+        vm.warp(block.timestamp + 60 days);
+        uint256 massBefore = phiCoin.temporalMass(alice);
+        assertTrue(massBefore > 1e18, "Should have accumulated mass");
+
+        // Transfer resets timestamp
+        vm.prank(alice);
+        phiCoin.transfer(bob, 100 * 1e18);
+
+        // Alice's mass should reset to ~1.0
+        uint256 massAfter = phiCoin.temporalMass(alice);
+        assertEq(massAfter, 1e18, "Mass should reset to 1.0 after transfer");
+    }
+
+    // =========================================================================
+    // Spiral Burn Engine
+    // =========================================================================
+
+    function test_SpiralBurn_BurnsOnTransfer() public {
+        // Mint enough tokens to have a meaningful burn rate
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 100_000_000 * 1e18);
+
+        uint256 supplyBefore = phiCoin.totalSupply();
+        uint256 transferAmount = 1_000_000 * 1e18;
+
+        vm.prank(alice);
+        phiCoin.transfer(bob, transferAmount);
+
+        uint256 supplyAfter = phiCoin.totalSupply();
+        assertTrue(supplyAfter < supplyBefore, "Total supply should decrease due to spiral burn");
+        // Bob should receive less than transferAmount
+        assertTrue(phiCoin.balanceOf(bob) < transferAmount, "Bob should receive less than sent due to burn");
+    }
+
+    function test_SpiralBurn_ZeroAtFloor() public {
+        // When supply is at or below BURN_FLOOR, burn rate should be 0
+        // We can't easily get supply to floor, but we can check the function
+        uint256 burnRate = phiCoin.spiralBurnRate();
+        assertEq(burnRate, 0, "Burn rate should be 0 when supply is 0");
+    }
+
+    // =========================================================================
+    // Anti-Whale Golden Spiral Limiter
+    // =========================================================================
+
+    function test_AntiWhale_BlocksLargeTransfer() public {
+        // Mint large amount to alice (whale)
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 500_000_000 * 1e18);
+
+        // Set median balance
+        vm.prank(admin);
+        phiCoin.setMedianBalance(1000 * 1e18);
+
+        // Alice tries to transfer a huge amount — should revert
+        vm.prank(alice);
+        vm.expectRevert();
+        phiCoin.transfer(bob, 400_000_000 * 1e18);
+    }
+
+    function test_AntiWhale_AllowsSmallHolder() public {
+        // Mint small amount to alice (not a whale)
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 500 * 1e18);
+
+        // Set median balance higher than alice's balance
+        vm.prank(admin);
+        phiCoin.setMedianBalance(1000 * 1e18);
+
+        // Small holder can transfer freely
+        vm.prank(alice);
+        phiCoin.transfer(bob, 200 * 1e18);
+        assertTrue(phiCoin.balanceOf(bob) > 0, "Small holder transfer should succeed");
+    }
+
+    function test_AntiWhale_InactiveWhenMedianZero() public {
+        // Mint large amount
+        vm.prank(minter);
+        phiCoin.mintTo(alice, 500_000_000 * 1e18);
+
+        // medianBalance is 0 by default — whale limiter inactive
+        vm.prank(alice);
+        phiCoin.transfer(bob, 400_000_000 * 1e18);
+        assertTrue(phiCoin.balanceOf(bob) > 0, "Transfer should succeed when whale limiter inactive");
     }
 }
