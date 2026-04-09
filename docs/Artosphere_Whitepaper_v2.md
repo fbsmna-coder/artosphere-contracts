@@ -21,12 +21,13 @@ F.B. Sapronov | Independent Researcher | ORCID: 0009-0008-1747-1200
 11. [DeFi Primitives](#11-defi-primitives)
 12. [Smart Contract Architecture](#12-smart-contract-architecture)
 12. [Cryptographic Foundation](#12-cryptographic-foundation)
-13. [Risk Factors](#13-risk-factors)
-14. [Roadmap](#14-roadmap)
-15. [Security](#15-security)
-16. [Competitive Landscape](#16-competitive-landscape)
-17. [Legal & Regulatory](#17-legal--regulatory)
-18. [References](#18-references)
+13. [Killer Features: Phase 2 Ecosystem](#13-killer-features-phase-2-ecosystem)
+14. [Risk Factors](#14-risk-factors)
+15. [Roadmap](#15-roadmap)
+16. [Security](#16-security)
+17. [Competitive Landscape](#17-competitive-landscape)
+18. [Legal & Regulatory](#18-legal--regulatory)
+19. [References](#19-references)
 
 ---
 
@@ -44,7 +45,7 @@ The three components form a **self-verifying flywheel**: science produces predic
 
 Artosphere does not just describe the laws of physics; it benchmarks the economy against them. By anchoring tokenomics to universal constants, we eliminate human bias in protocol governance, creating the first truly objective DeFi infrastructure for the future of science.
 
-22 smart contracts. 306 Foundry tests. 15 Zenodo DOIs. All open source (MIT license).
+27 smart contracts (22 deployed + 5 Phase 2). 306 Foundry tests. 15 Zenodo DOIs. All open source (MIT license).
 
 ---
 
@@ -559,7 +560,7 @@ Bounded: [0.236%, 1.0%]. Adjustment: max 0.01% per hour.
 | 17 | FibonacciFusion | `0x53795615...B858` | Non-upgradeable |
 | 18 | **ConvictionNFT** | `0x1D4E49E6...7b00` | Non-upgradeable |
 | 19 | **KillSwitch** | `0x02709268...2D927` | Non-upgradeable |
-| 20 | **FibonacciFusionV2** | `pending (VRF)` | Non-upgradeable (Chainlink VRF) |
+| 20 | **FibonacciFusionV2** | `0x1066f1ba...9e1b09` | Non-upgradeable (Chainlink VRF) |
 
 Plus PhiMath (library) and ArtosphereConstants (library). **22 contracts total.**
 
@@ -596,7 +597,171 @@ AEAD cipher: AES-256-GCM core with A₅ icosahedral pre-mixing layer (256-elemen
 
 ---
 
-## 13. Risk Factors
+## 13. Killer Features: Phase 2 Ecosystem
+
+Phase 2 extends Artosphere from a token + journal system into a self-reinforcing scientific discovery engine. Five new primitives — Spectral Dynamic NFTs, Peer-Review DAO, Falsification Market, the phi-Coherence Protocol, and a unified mathematical foundation — transform the protocol into the first DeFi ecosystem where every component is coupled by golden ratio physics.
+
+### 13.1 Spectral Dynamic NFTs
+
+Spectral NFTs are **living particles** — ERC-721 tokens whose visual state and staking multiplier evolve in real time as experimental data accumulates. Each NFT represents a physics prediction and reacts to incoming evidence.
+
+**Zero-write confidence formula.** Rather than updating on-chain state with every data point, confidence is computed deterministically from the last observation timestamp:
+
+> **c(t) = c_inf - (c_inf - c_0) * phi^{-floor(t / tau)}**
+
+where c_0 is initial confidence, c_inf is the asymptotic limit (set by oracle resolution), tau is the characteristic time constant (Fibonacci: 21 days = F(8)), and phi^{-n} is the golden decay. The formula requires zero storage writes — confidence at any moment is a pure function of block.timestamp.
+
+**Five visual stages:**
+
+| Stage | Confidence Range | Visual | Meaning |
+|-------|-----------------|--------|---------|
+| Hypothesis | [0, 0.2) | Dim nebula, unformed | Prediction published, no data |
+| Signal | [0.2, 0.4) | Faint glow, coalescing | Early hints from experiment |
+| Convergence | [0.4, 0.6) | Bright spiral, phi-symmetry emerging | Data trending toward confirmation |
+| Confirmation | [0.6, 0.8) | Full golden spiral, pulsing | Strong experimental agreement |
+| Discovery | [0.8, 1.0] | Radiant particle, crystallized | Confirmed beyond 3 sigma |
+
+**Staking multiplier.** Holding a Spectral NFT amplifies Discovery Staking rewards:
+
+> **SC in [1.0, phi^2] = [1.0, 2.618]**
+
+The multiplier scales linearly with the NFT's confidence stage. A Discovery-stage NFT grants the maximum 2.618x boost — rewarding those who staked early on a prediction that was later confirmed.
+
+**Contract:** SpectralNFT.sol (ERC-721 + ERC-2981 royalties at 1/phi^8 = 2.13%). On-chain SVG rendering — the visual state is computed from chain data, not stored off-chain.
+
+### 13.2 Peer-Review DAO
+
+On-chain scientific peer review with phi-weighted voting and cryptographic anonymity.
+
+**Commit-reveal reviews.** Reviewers submit keccak256(review || salt) during the review phase, then reveal the plaintext during the reveal phase. This prevents reviewers from anchoring on each other's opinions — the same mechanism that makes academic blind review effective, enforced by cryptography rather than trust.
+
+**phi-weighted reviewer tiers:**
+
+| Tier | Weight | Requirement |
+|------|--------|-------------|
+| Novice | phi^0 = 1.0 | Registered researcher |
+| Scholar | phi^1 = 1.618 | 2+ accepted reviews |
+| Expert | phi^2 = 2.618 | 5+ contributions + ORCID |
+| Oracle | phi^3 = 4.236 | 13+ contributions, elected validator |
+
+**Golden Quorum.** A review passes when weighted votes exceed 61.8% (= 1/phi) of the total reviewer weight pool — the golden ratio complement. This is the natural quorum: it ensures that a minority of high-tier reviewers cannot override a majority of competent peers, while still rewarding demonstrated expertise.
+
+**Fibonacci review windows:**
+- Review phase: 21 days (F(8)) — reviewers submit commit hashes
+- Reveal phase: 5 days (F(5)) — reviewers reveal plaintext
+- Total cycle: 26 days — itself nearly a Fibonacci number
+
+**ResearcherRegistry integration.** ORCID identifiers are stored on-chain, linking pseudonymous wallet addresses to verified academic identities. Tier progression requires both on-chain activity (reviews, contributions) and off-chain credentials (ORCID, DOI publications).
+
+**Slashing.** Reviewers who submit low-quality or bad-faith reviews (overruled by validator consensus) face phi-Cascade slashing: reputation tier decreases by one level, and staked ARTS are redistributed via the standard phi^{-1} / phi^{-3} / phi^{-5} / phi^{-6} cascade.
+
+### 13.3 Falsification Market
+
+The Falsification Market implements Karl Popper's philosophy of science as an economic mechanism: **falsification is profitable**.
+
+**How it works:**
+1. An author publishes a prediction and stakes ARTS on it (minimum: 1,618 ARTS)
+2. Anyone can stake ARTS on falsifying the prediction (the "falsifier pool")
+3. When an experiment resolves the prediction, the losing pool is distributed via phi-Cascade
+
+**Author-falsifier dynamics.** If the prediction is confirmed, the author's stake earns phi^{-1} = 61.8% of the falsifier pool. If the prediction is refuted, falsifiers split the author's stake — and the falsifier who submitted the evidence (DOI link) receives the phi^{-5} = 9.02% super-bonus.
+
+**Hardness multiplier.** Predictions that survive repeated falsification attempts become harder to bet against — and more rewarding to successfully falsify:
+
+> **H = phi^{survivals / 5}**
+
+A prediction that has survived 10 falsification attempts carries H = phi^2 = 2.618x multiplier on the falsifier reward. This creates an escalating bounty: the longer a prediction stands, the more profitable it becomes to disprove it.
+
+**Why this matters.** In traditional academia, there is no reward for disproving someone's theory — only for publishing your own. Artosphere inverts this: every prediction carries a public bounty for its own destruction. The protocol finances its own falsification. This is the only DeFi protocol where being wrong is as economically productive as being right.
+
+### 13.4 phi-Coherence Protocol
+
+The phi-Coherence Protocol governs how events propagate across ecosystem layers, preventing runaway cascades while maintaining meaningful cross-component coupling.
+
+**Chain complex.** The ecosystem forms a graded algebraic structure:
+
+> **C_0(Token) -> C_1(Staking) -> C_2(Oracle, NFT) -> C_3(Reputation)**
+
+Each arrow represents an event propagation channel. A token burn (C_0) triggers staking reward adjustment (C_1), which affects oracle incentives (C_2), which updates reputation scores (C_3).
+
+**phi-damped cascades.** Each level receives phi^{-1} = 61.8% of the impact from the previous level:
+
+| Level | Receives | Cumulative |
+|-------|----------|-----------|
+| C_0 (Token) | 100% of event | 100% |
+| C_1 (Staking) | phi^{-1} = 61.8% | 161.8% |
+| C_2 (Oracle, NFT) | phi^{-2} = 38.2% | 200.0% |
+| C_3 (Reputation) | phi^{-3} = 23.6% | 223.6% |
+
+**Total amplification bounded.** The geometric series Sum(phi^{-n}, n=0..inf) = phi^2 / (phi^2 - phi) = phi^2 = 2.618. No event can amplify beyond 2.618x its original magnitude — a built-in ecosystem stabilizer derived from golden ratio convergence.
+
+This prevents the cascading failure modes seen in DeFi protocols like Terra/Luna, where a de-peg event amplified without bound through staking, lending, and liquidation layers. In Artosphere, phi-damping guarantees bounded propagation by construction.
+
+### 13.5 Mathematical Foundations
+
+Key results from the analysis team connecting the Artosphere Hypothesis to protocol design:
+
+**Network SNR equals vacuum curvature.**
+
+> **SNR_phi = phi^3 = V''(s_0)**
+
+The signal-to-noise ratio of the phi-weighted voting system equals the second derivative of the Artosphere potential at its vacuum — the curvature that determines particle masses. This is not a coincidence: both quantities measure the sharpness of the ground state.
+
+**Convergence index matches vacuum.**
+
+> **C(1 sigma) = 1/phi^2 = s_0**
+
+The convergence rate of Discovery Staking pools at 1-sigma experimental precision equals the V_Art vacuum expectation value s_0 = 1/phi^2. Staking pools converge to their true value at the same rate as the Artosphere vacuum selects particles.
+
+**Sybil resistance threshold.** Analysis of phi-weighted voting under Sybil attack shows the system is safe at m >= 7 honest nodes, where the Sybil influence index I drops below sin^2(theta_12) = 0.309 — the neutrino mixing angle that governs governance quorum. Below 7 honest nodes, the attacker can exceed quorum.
+
+**zeta_DAO(s) — the zeta function of the DAO.** The phi-Laplacian on the reviewer graph defines a spectral zeta function:
+
+> **zeta_DAO(s) = Sum(lambda_k^{-s})**
+
+where lambda_k are eigenvalues of the phi-weighted adjacency matrix. The poles of zeta_DAO encode the DAO's governance structure: the residue at s = 1 equals the reviewer graph's phi-volume, and the spectral gap lambda_1 - lambda_0 measures resistance to governance capture.
+
+### 13.6 Updated Contract Architecture
+
+Phase 2 adds 5 new contracts to the existing 22, bringing the total to 27:
+
+| # | Contract | Role | Pattern |
+|---|----------|------|---------|
+| | **--- Phase 1 (22 contracts, deployed) ---** | | |
+| 1 | PhiCoin (proxy) | ERC-20 token, F(16) x 10^6 supply | UUPS |
+| 2 | PhiStaking (proxy) | Fibonacci-tier staking, phi-decay APY | UUPS |
+| 3 | PhiGovernor | sin^2(theta_12) quorum governance | Non-upgradeable |
+| 4 | TimelockController | Execution delay for governance | Non-upgradeable |
+| 5 | PhiVesting | Team/advisor vesting with Fibonacci cliffs | Non-upgradeable |
+| 6 | MatryoshkaStaking | 5-layer nested staking (5-377 days) | Non-upgradeable |
+| 7 | GoldenMirror | phi x deposit liquid synthetic (gARTS) | Non-upgradeable |
+| 8 | PhiAMM | 61.8/38.2 weighted constant-product AMM | Non-upgradeable |
+| 9 | NashFee | Dynamic fee converging to 0.618% | Non-upgradeable |
+| 10 | ZeckendorfTreasury | 6-compartment Fibonacci treasury | Non-upgradeable |
+| 11 | ArtosphereQuests | Quest system for community rewards | Non-upgradeable |
+| 12 | PhiCertificate | Contribution certificates | Non-upgradeable |
+| 13 | ArtosphereDiscovery | Soulbound Discovery NFTs (ERC-5192) | Non-upgradeable |
+| 14 | DiscoveryOracle | Validator voting, 21-day cooldown | Non-upgradeable |
+| 15 | DiscoveryStaking (proxy) | Prediction market for physics | UUPS |
+| 16 | ResearcherRegistry | ORCID-linked researcher profiles | Non-upgradeable |
+| 17 | FibonacciFusion | tau x tau = 1 + tau token burn | Non-upgradeable |
+| 18 | ConvictionNFT | Liquid prediction position NFTs | Non-upgradeable |
+| 19 | KillSwitch | Black Swan self-termination | Non-upgradeable |
+| 20 | FibonacciFusionV2 | Chainlink VRF fusion | Non-upgradeable |
+| 21 | PhiMath | Golden ratio math library | Library |
+| 22 | ArtosphereConstants | Physics constants library | Library |
+| | **--- Phase 2 (5 new contracts) ---** | | |
+| 23 | SpectralNFT | Dynamic NFTs reacting to experimental data | Non-upgradeable |
+| 24 | PeerReviewDAO | Commit-reveal review, phi-weighted voting | Non-upgradeable |
+| 25 | FalsificationMarket | Popperian falsification prediction market | UUPS |
+| 26 | PhiCoherence | Cross-layer cascade damping (phi^{-n}) | Non-upgradeable |
+| 27 | ZetaDAO | Spectral zeta function of reviewer graph | Non-upgradeable |
+
+All Phase 2 contracts inherit PhiMath and ArtosphereConstants. FalsificationMarket uses UUPS proxy to allow oracle integration upgrades. Deployment target: Base mainnet, Q3 2026.
+
+---
+
+## 14. Risk Factors
 
 Participants should consider the following risks:
 
@@ -637,7 +802,7 @@ This is **Insurance Against Scientific Error** — the most honest mechanism in 
 
 ---
 
-## 14. Roadmap
+## 15. Roadmap
 
 ### Completed (April 2026)
 - [x] 15 papers on CERN Zenodo (DOIs sealed)
@@ -691,29 +856,29 @@ This is **Insurance Against Scientific Error** — the most honest mechanism in 
 
 ---
 
-## 15. Security
+## 16. Security
 
-### 13.1 Audit Status
+### 16.1 Audit Status
 
 No external audit has been completed. Internal static analysis (Slither, Mythril) is scheduled for Q2 2026. A competitive audit via Code4rena ($5-8K) is planned before any public liquidity event. No code should be considered production-safe until audits are complete.
 
-### 13.2 Upgrade Authority
+### 16.2 Upgrade Authority
 
 Three contracts (PhiCoin, PhiStaking, DiscoveryStaking) use UUPS proxy upgrades. The `UPGRADER_ROLE` is currently held by a single deploy EOA (`0xED7E...a6A6`). **Planned migration:** transfer `UPGRADER_ROLE` and `DEFAULT_ADMIN_ROLE` to a Gnosis Safe multisig (3-of-5) behind the existing TimelockController before any public liquidity event.
 
-### 13.3 Admin Privileges
+### 16.3 Admin Privileges
 
 The deploy wallet holds `DEFAULT_ADMIN_ROLE` across all contracts. Until multisig migration, this constitutes a single point of failure and a centralization risk.
 
-### 13.4 Entropy
+### 16.4 Entropy
 
 FibonacciFusion uses `blockhash + address + nonce` for randomness. On Base L2, the sequencer can predict blockhash values. **Planned:** integrate Chainlink VRF for tamper-resistant randomness before mainnet volume grows.
 
-### 13.5 Oracle Security
+### 16.5 Oracle Security
 
 DiscoveryOracle uses role-based access control with validator voting, a 21-day challenge period, and `VETO_ROLE`. Validators are currently admin-appointed, not elected. Oracle manipulation risk is mitigated by the cooldown and veto mechanism but governance remains centralized until validator election is implemented.
 
-### 13.6 Known Issues & Remediation
+### 16.6 Known Issues & Remediation
 
 | Issue | Severity | Remediation | Timeline |
 |-------|----------|-------------|----------|
@@ -726,7 +891,7 @@ DiscoveryOracle uses role-based access control with validator voting, a 21-day c
 
 ---
 
-## 16. Competitive Landscape
+## 17. Competitive Landscape
 
 Artosphere sits at a unique intersection: physics-derived tokenomics, on-chain scientific publishing, and a prediction market for experimental validation. No existing project combines all three.
 
@@ -751,7 +916,7 @@ Artosphere sits at a unique intersection: physics-derived tokenomics, on-chain s
 
 ---
 
-## 17. Legal & Regulatory
+## 18. Legal & Regulatory
 
 **Token Classification.** ARTS is designed as a utility token providing access to governance, staking, Discovery Staking prediction markets, and on-chain journal participation. ARTS does not represent equity, profit-sharing rights, or ownership interest in any entity. Regulatory classification may vary by jurisdiction; participants should consult local counsel.
 
@@ -769,7 +934,7 @@ Artosphere sits at a unique intersection: physics-derived tokenomics, on-chain s
 
 ---
 
-## 18. References
+## 19. References
 
 ### Artosphere Papers (CERN Zenodo)
 
@@ -821,4 +986,4 @@ python papers/verify_paper3.py  # 22/22 PASS
 ---
 
 *Copyright 2026 F.B. Sapronov. All rights reserved. ORCID: 0009-0008-1747-1200*
-*See Sections 13, 15, and 17 for security, risk, and legal disclosures.*
+*See Sections 14, 16, and 18 for risk, security, and legal disclosures.*
