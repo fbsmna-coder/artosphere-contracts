@@ -104,11 +104,11 @@ contract PhiStakingTest is Test {
     function test_PendingRewardIncreasesOverTime() public {
         vm.prank(alice);
         staking.stake(STAKE_AMOUNT, 0);
-        vm.warp(block.timestamp + 1200);
+        vm.warp(block.timestamp + 604800); // 1 week
         uint256 reward1 = staking.pendingReward(alice);
-        vm.warp(block.timestamp + 1200);
+        vm.warp(block.timestamp + 604800 * 3); // +3 more weeks
         uint256 reward2 = staking.pendingReward(alice);
-        assertTrue(reward2 > reward1);
+        assertTrue(reward2 > reward1, "Reward should increase over time");
     }
 
     function test_HigherTierHigherRewards() public {
@@ -120,7 +120,7 @@ contract PhiStakingTest is Test {
         staking.stake(STAKE_AMOUNT, 0);
         vm.prank(bob);
         staking.stake(STAKE_AMOUNT, 2);
-        vm.warp(block.timestamp + 6000);
+        vm.warp(block.timestamp + 604800);
         uint256 rewardAlice = staking.pendingReward(alice);
         uint256 rewardBob = staking.pendingReward(bob);
         assertTrue(rewardBob > rewardAlice);
@@ -129,7 +129,7 @@ contract PhiStakingTest is Test {
     function test_Compound() public {
         vm.prank(alice);
         staking.stake(STAKE_AMOUNT, 0);
-        vm.warp(block.timestamp + 3600);
+        vm.warp(block.timestamp + 604800 * 3);
         assertTrue(staking.pendingReward(alice) > 0);
         vm.prank(alice);
         staking.compound();

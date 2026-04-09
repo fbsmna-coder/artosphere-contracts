@@ -12,12 +12,12 @@ import "./PhiMath.sol";
 
 /**
  * @title PhiStaking
- * @author IBG Technologies
+ * @author F.B. Sapronov
  * @notice Stake PHI tokens and earn golden-ratio-decay rewards.
  *
  * @dev **APY schedule:**
- *      APY starts at 1/phi ~ 61.8% and decreases by factor 1/phi each epoch:
- *          APY(epoch) = phi^{-(epoch+1)}
+ *      APY starts at 1/phi ~ 61.8% and decreases by factor 1/phi each weekly epoch:
+ *          APY(epoch) = phi^{-(epoch+1)}  (1 epoch = 1 week)
  *
  *      **Lock tiers (Fibonacci periods):**
  *        - Tier 0: F(5)  =  5 days  -- multiplier x1.0
@@ -51,8 +51,9 @@ contract PhiStaking is
     /// @notice Role for addresses permitted to upgrade the proxy.
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
-    /// @notice Duration of a single staking epoch in seconds (matches PhiCoin).
-    uint256 public constant EPOCH_DURATION = 1200;
+    /// @notice Duration of a single staking epoch in seconds (1 week).
+    /// APY decays by factor 1/φ each epoch, giving a meaningful ~2-year yield curve.
+    uint256 public constant EPOCH_DURATION = 604_800;
 
     /// @notice Seconds in one day (used for lock period calculation).
     uint256 public constant SECONDS_PER_DAY = 86_400;
@@ -266,7 +267,7 @@ contract PhiStaking is
 
         uint256 epochs = curEpoch - stakeEpoch;
         uint256 mul = tierMultiplier(s.tier);
-        uint256 epochsPerYear = 26_298;
+        uint256 epochsPerYear = 52;
 
         // Closed-form geometric series
         uint256 firstTerm = PhiMath.phiInvPow(stakeEpoch + 1);

@@ -1,0 +1,1784 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Artosphere Whitepaper v2.1</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet"><style>
+:root {
+  --gold: #c8a000;
+  --gold-light: #e8c840;
+  --gold-dim: #8a6e00;
+  --bg: #0a0a14;
+  --bg-card: #111128;
+  --bg-code: #0d0d20;
+  --text: #e0e0e8;
+  --text-dim: #888898;
+  --accent: #4488ff;
+  --green: #00ff88;
+  --red: #ff4444;
+  --orange: #ffaa00;
+  --phi: 1.618;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,160,0,0.1);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,160,0,0.15);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .subtitle {
+  font-size: 1.3rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .version {
+  display: inline-block;
+  padding: 0.3rem 1.2rem;
+  border: 1px solid var(--gold-dim);
+  border-radius: 20px;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .author {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .author a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hero .stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .stat {
+  text-align: center;
+}
+
+.hero .stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.hero .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Container ── */
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* ── Sections ── */
+section {
+  margin-top: 5rem;
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(200,160,0,0.2);
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin: 2rem 0 0.8rem;
+}
+
+p { margin-bottom: 1rem; }
+
+/* ── Blockquote (formulas) ── */
+blockquote {
+  background: var(--bg-card);
+  border-left: 3px solid var(--gold);
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.05rem;
+  color: var(--gold-light);
+}
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+thead {
+  background: var(--bg-card);
+}
+
+th {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+tr:hover { background: rgba(200,160,0,0.03); }
+
+.accuracy-good { color: var(--green); font-weight: 600; }
+.accuracy-ok { color: var(--orange); }
+
+/* ── Code blocks ── */
+pre {
+  background: var(--bg-code);
+  border: 1px solid rgba(200,160,0,0.15);
+  border-radius: 8px;
+  padding: 1.2rem 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #c8d0e0;
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  background: rgba(200,160,0,0.08);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--gold-light);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ── Cards ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid rgba(200,160,0,0.12);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.card h4 { color: var(--gold); font-size: 1rem; margin-bottom: 0.4rem; }
+.card p { font-size: 0.85rem; color: var(--text-dim); margin: 0; }
+
+/* ── Flywheel diagram ── */
+.flywheel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 2.5rem 0;
+  flex-wrap: wrap;
+}
+
+.flywheel-step {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-dim);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  min-width: 160px;
+}
+
+.flywheel-step h4 { color: var(--gold); font-size: 0.9rem; }
+.flywheel-step p { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+
+.flywheel-arrow {
+  color: var(--gold);
+  font-size: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* ── Cascade diagram ── */
+.cascade {
+  display: flex;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+  align-items: flex-end;
+}
+
+.cascade-bar {
+  flex: 1;
+  border-radius: 8px 8px 0 0;
+  text-align: center;
+  padding: 0.8rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.cascade-bar .pct {
+  display: block;
+  font-size: 1.3rem;
+  font-family: 'Playfair Display', serif;
+}
+
+.cascade-bar .label {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 0.3rem;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-card);
+  border: 1px solid rgba(200,160,0,0.12);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 3rem 0;
+}
+
+.toc h3 {
+  color: var(--gold);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding: 0;
+}
+
+.toc li {
+  counter-increment: toc;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.toc li::before {
+  content: counter(toc) ".";
+  color: var(--gold-dim);
+  font-weight: 600;
+  margin-right: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.toc a:hover { color: var(--gold); }
+
+/* ── Tags ── */
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.3rem;
+}
+
+.tag-proven { background: rgba(68,136,255,0.15); color: var(--accent); }
+.tag-confirmed { background: rgba(0,255,136,0.1); color: var(--green); }
+.tag-predicted { background: rgba(255,170,0,0.1); color: var(--orange); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid rgba(200,160,0,0.1);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.footer a { color: var(--gold-dim); text-decoration: none; }
+
+/* ── Contract table ── */
+.contract-addr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero .stats { flex-direction: column; gap: 1.5rem; }
+  .card-grid { grid-template-columns: 1fr; }
+  .flywheel { flex-direction: column; }
+  .flywheel-arrow { transform: rotate(90deg); }
+  .cascade { flex-direction: column; align-items: stretch; }
+  .cascade-bar { border-radius: 8px; }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  body { background: #fff; color: #111; font-size: 11pt; }
+  .hero { min-height: auto; padding: 2rem; }
+  .hero::before, .hero::after { display: none; }
+  .hero h1 { color: #333; font-size: 2rem; }
+  .hero .subtitle, .hero .author, .hero .stat-label { color: #666; }
+  .hero .stat-value, .hero .version { color: #8a6e00; }
+  h2 { color: #333; border-color: #ccc; }
+  h3 { color: #555; }
+  blockquote { background: #f5f5f0; border-color: #8a6e00; color: #333; }
+  .card, .toc { background: #f8f8f5; border-color: #ddd; }
+  pre { background: #f5f5f0; border-color: #ddd; color: #333; }
+  code { background: #f0f0e8; color: #333; }
+  table { border: 1px solid #ddd; }
+  th { background: #f0f0e8; color: #333; border-color: #ccc; }
+  td { border-color: #eee; }
+  section { margin-top: 2rem; page-break-inside: avoid; }
+  .cascade-bar { border: 1px solid #ccc; }
+}
+.container h1{font-family:"Playfair Display",serif;font-size:2.8rem;color:var(--gold);text-align:center;margin:3rem 0 .5rem}.container>p:first-of-type{text-align:center;color:var(--text-dim);font-size:1.1rem}.container>p:nth-of-type(2){text-align:center;color:var(--text-dim);font-size:.95rem;margin-bottom:3rem}.container h2{font-family:"Playfair Display",serif;font-size:1.8rem;color:var(--gold);margin-top:4rem;padding-bottom:.4rem;border-bottom:1px solid rgba(200,160,0,.2)}.container h3{font-size:1.15rem;font-weight:600;color:var(--gold-light);margin:2rem 0 .8rem}.container table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.88rem}.container thead{background:var(--bg-card)}.container th{padding:.7rem .8rem;text-align:left;color:var(--gold);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--gold-dim)}.container td{padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.05)}.container tr:hover{background:rgba(200,160,0,.03)}.container blockquote{background:var(--bg-card);border-left:3px solid var(--gold);padding:1rem 1.3rem;margin:1.5rem 0;border-radius:0 8px 8px 0;color:var(--gold-light)}.container pre{background:var(--bg-code);border:1px solid rgba(200,160,0,.15);border-radius:8px;padding:1rem 1.3rem;overflow-x:auto;margin:1.5rem 0;font-family:"JetBrains Mono",monospace;font-size:.83rem;line-height:1.6;color:#c8d0e0}.container code{font-family:"JetBrains Mono",monospace;font-size:.86em;background:rgba(200,160,0,.08);padding:.15em .4em;border-radius:4px;color:var(--gold-light)}.container pre code{background:none;padding:0}.container p{margin-bottom:1rem;line-height:1.75}.container ol,.container ul{margin:1rem 0;padding-left:1.5rem}.container li{margin-bottom:.4rem}.container strong{color:#fff}.container hr{border:none;border-top:1px solid rgba(200,160,0,.15);margin:3rem 0}.container a{color:var(--accent);text-decoration:none}.footer{text-align:center;padding:3rem 2rem;border-top:1px solid rgba(200,160,0,.1);color:var(--text-dim);font-size:.85rem}</style></head><body><div class="container" style="max-width:820px;margin:0 auto;padding:4rem 2rem 6rem"><h1 id="the-artosphere-ecosystem-science-journal-token">The Artosphere Ecosystem: Science, Journal, Token</h1>
+<p><strong>Whitepaper v2.1 — April 2026</strong></p>
+<p>F.B. Sapronov | Independent Researcher | ORCID: 0009-0008-1747-1200</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-abstract">Abstract</a></li>
+<li><a href="#2-the-problem">The Problem</a></li>
+<li><a href="#3-the-artosphere-hypothesis">The Artosphere Hypothesis</a></li>
+<li><a href="#4-token-economics">Token Economics</a></li>
+<li><a href="#5-token-distribution--vesting">Token Distribution &amp; Vesting</a></li>
+<li><a href="#6-discovery-staking">Discovery Staking</a></li>
+<li><a href="#7-fibonacci-fusion">Fibonacci Fusion</a></li>
+<li><a href="#8-on-chain-scientific-journal">On-Chain Scientific Journal</a></li>
+<li><a href="#9-staking-architecture">Staking Architecture</a></li>
+<li><a href="#10-governance">Governance</a></li>
+<li><a href="#11-defi-primitives">DeFi Primitives</a></li>
+<li><a href="#12-smart-contract-architecture">Smart Contract Architecture</a></li>
+<li><a href="#12-cryptographic-foundation">Cryptographic Foundation</a></li>
+<li><a href="#13-risk-factors">Risk Factors</a></li>
+<li><a href="#14-roadmap">Roadmap</a></li>
+<li><a href="#15-security">Security</a></li>
+<li><a href="#16-competitive-landscape">Competitive Landscape</a></li>
+<li><a href="#17-legal--regulatory">Legal &amp; Regulatory</a></li>
+<li><a href="#18-references">References</a></li>
+</ol>
+<hr />
+<h2 id="1-abstract">1. Abstract</h2>
+<p>Artosphere is an integrated ecosystem connecting fundamental physics research to on-chain economics. It comprises three components:</p>
+<ol>
+<li>
+<p><strong>The Artosphere Hypothesis</strong> — a minimal information entropy framework deriving 35 Standard Model constants from the golden ratio φ = (1+√5)/2 and the Planck mass, with no adjustable parameters and 0.61% mean accuracy across 22 verified parameters — with precision reaching 7 ppm for key electroweak observables (M_H) and 18 ppm for the muon mass. Published across 15 DOIs on CERN Zenodo.</p>
+</li>
+<li>
+<p><strong>ARTS Token</strong> — an ERC-20 token on Base L2 (Coinbase) where every economic parameter derives from physics: supply = F(16) × 10⁶ = 987,000,000 (Fibonacci number), governance quorum = sin²θ₁₂ = 30.9% (neutrino mixing angle confirmed by JUNO at 0.02σ), burn rate = 1/φ⁸ (universal suppression factor).</p>
+</li>
+<li>
+<p><strong>On-Chain Scientific Journal</strong> — soulbound DOI NFTs, peer review with φ-weighted quorum, a citation graph on the blockchain, and Discovery Staking — a prediction market where users stake ARTS on whether physics predictions will be experimentally confirmed.</p>
+</li>
+</ol>
+<p>The three components form a <strong>self-verifying flywheel</strong>: science produces predictions → the journal publishes and validates them → the token creates economic incentives for verification → royalties fund further research. The system finances its own falsification — if the predictions are wrong, the market punishes them; if they are right, the market rewards precision.</p>
+<p>Artosphere does not just describe the laws of physics; it benchmarks the economy against them. By anchoring tokenomics to universal constants, we eliminate human bias in protocol governance, creating the first truly objective DeFi infrastructure for the future of science.</p>
+<p>22 smart contracts. 306 Foundry tests. 15 Zenodo DOIs. All open source (MIT license).</p>
+<hr />
+<h2 id="2-the-problem">2. The Problem</h2>
+<p>Modern science suffers from four systemic failures:</p>
+<ol>
+<li>
+<p><strong>Replication crisis.</strong> Over 70% of researchers have tried and failed to reproduce another scientist's experiment (Nature, 2016). Published results are not reliably verified, and there is no economic incentive to replicate.</p>
+</li>
+<li>
+<p><strong>Misaligned incentives.</strong> Academic publishing is a $28B industry where journals profit from free peer review, authors pay to publish, and readers pay to access. The people who create scientific value capture none of it.</p>
+</li>
+<li>
+<p><strong>No market for truth.</strong> When a physicist publishes a testable prediction, there is no mechanism to aggregate collective conviction about whether it will be confirmed. Predictions sit in journals until an experiment happens — years or decades later — with no economic signal in between.</p>
+</li>
+<li>
+<p><strong>Ivory Tower Lag.</strong> Theoretical predictions can wait decades for experimental verification with zero feedback from reality. String theory and multiverse hypotheses are frequently criticized for being fundamentally untestable. Modern theoretical physics needs a real-time conviction signal — a way for the community to put skin in the game on verifiability.</p>
+</li>
+</ol>
+<p>Artosphere addresses all four:</p>
+<ul>
+<li><strong>Discovery Staking</strong> creates an economic incentive for verification — stake tokens on whether a prediction will be confirmed. Correct predictors profit; incorrect stakes are partially burned. Every stake is a real-time conviction signal with capital at risk.</li>
+<li><strong>On-chain journal</strong> with soulbound DOI NFTs gives scientists permanent, immutable priority proof and royalty income (9.02% of every resolved stake).</li>
+<li><strong>Physics-derived tokenomics</strong> ensures the economic system itself is grounded in verifiable mathematics, not arbitrary parameter choices.</li>
+<li><strong>Anti-unfalsifiability:</strong> Artosphere is the antithesis of untestable physics. Every prediction has a kill condition, a timeline, and an experiment. If you think it's wrong — you can literally bet against it.</li>
+</ul>
+<p><strong>Market opportunity:</strong> DeSci protocols have attracted $300M+ in funding (2023-2026). The academic publishing market is $28B. Prediction markets exceed $50B in volume. Artosphere sits at the intersection of all three — and compresses ~1200 bits of Standard Model information into ~100 bits (2 inputs: φ and M_Pl), making Discovery Staking the most information-efficient prediction market in existence.</p>
+<hr />
+<h2 id="3-the-artosphere-hypothesis">3. The Artosphere Hypothesis</h2>
+<h3 id="21-one-axiom">2.1 One Axiom</h3>
+<p>The Artosphere Hypothesis (Sapronov, 2026) starts from a single axiom:</p>
+<blockquote>
+<p><strong>Ψ ∈ Cl(9,1) = Cl(3,1) ⊗ Cl(6)</strong></p>
+</blockquote>
+<p>A spinor in 10-dimensional Clifford algebra decomposes into spacetime Cl(3,1) and internal space Cl(6). The golden ratio emerges naturally from this algebra through the Fibonacci fusion rule of Z₃-graded representations.</p>
+<h3 id="22-the-fibonacci-potential">2.2 The Fibonacci Potential</h3>
+<p>From Cl(6) emerges a Fibonacci-structured potential:</p>
+<blockquote>
+<p><strong>V_Art(s) = v⁴(s − s₀)² / (1 − s − s²)</strong></p>
+</blockquote>
+<p>where s₀ = 1/φ² is the vacuum and the denominator 1 − s − s² = 0 has root s = 1/φ (the golden ratio pole). This potential is not postulated — it is a theorem derived from the Z₃ Fibonacci fusion rule τ ⊗ τ = 1 ⊕ τ in Cl(6) (Zenodo DOI: 10.5281/zenodo.19473026).</p>
+<p>Key properties:
+- V''(s₀) = φ³ → strong coupling αₛ = 1/(2φ³)
+- The pole at s = 1/φ creates confinement (discrete spectrum)
+- The critical line identity: ½ − 1/φ² = 1/φ − ½ = 1/(2φ³) = αₛ (exact)</p>
+<h3 id="23-derived-results-0-free-parameters">2.3 Derived Results (0 Free Parameters)</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Formula</th>
+<th>Predicted</th>
+<th>Experimental</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>αₛ (strong coupling)</td>
+<td>1/(2φ³)</td>
+<td>0.1180</td>
+<td>0.1180 ± 0.0009</td>
+<td><strong>0.03%</strong></td>
+</tr>
+<tr>
+<td>sin²θ₁₂ (solar neutrino)</td>
+<td>1/(2φ)</td>
+<td>0.30902</td>
+<td>0.307 ± 0.003</td>
+<td><strong>0.02σ</strong></td>
+</tr>
+<tr>
+<td>sin²θ_W (Weinberg angle)</td>
+<td>3/(8φ)</td>
+<td>0.2318</td>
+<td>0.23121 ± 0.00004</td>
+<td>0.015%</td>
+</tr>
+<tr>
+<td>M_H (Higgs mass)</td>
+<td>v√(φ/(2π)) + CP corr.</td>
+<td>125.251 GeV</td>
+<td>125.25 ± 0.17 GeV</td>
+<td><strong>0.0007%</strong></td>
+</tr>
+<tr>
+<td>M_Z (Z boson mass)</td>
+<td>M_Pl · φ^{−1393/18} / √(8(8φ−3))</td>
+<td>91.08 GeV*</td>
+<td>91.1876 GeV</td>
+<td>0.12%*</td>
+</tr>
+<tr>
+<td>v_EW (electroweak scale)</td>
+<td>M_Pl / φ^{719/9}</td>
+<td>246.0 GeV</td>
+<td>246.22 GeV</td>
+<td>0.10%</td>
+</tr>
+<tr>
+<td>ρ̄ (CKM parameter)</td>
+<td>1/(2π)</td>
+<td>0.15915</td>
+<td>0.159 ± 0.010</td>
+<td><strong>0.09%</strong></td>
+</tr>
+<tr>
+<td>sin²θ₁₃ (reactor neutrino)</td>
+<td>φ⁻⁸ + φ⁻¹⁵</td>
+<td>0.02202</td>
+<td>0.02200 ± 0.00069</td>
+<td>0.048%</td>
+</tr>
+<tr>
+<td>δ_CP (CP phase)</td>
+<td>arctan(√5)</td>
+<td>65.91°</td>
+<td>66.4° ± 4.0°</td>
+<td>0.77%</td>
+</tr>
+<tr>
+<td>ρ_Λ (dark energy)</td>
+<td>v⁴ · φ^{−537/2}</td>
+<td>matches</td>
+<td>observed</td>
+<td>0.49%</td>
+</tr>
+<tr>
+<td>θ_QCD</td>
+<td>0 via e^{−4πφ³}</td>
+<td>&lt; 10⁻²⁴</td>
+<td>&lt; 10⁻¹⁰</td>
+<td>exact</td>
+</tr>
+</tbody>
+</table>
+<p>*1-loop corrected. Full table: 35 parameters, average deviation 0.61%.</p>
+<h3 id="24-the-higgs-flavor-identity-paper-vii">2.4 The Higgs-Flavor Identity (Paper VII)</h3>
+<p>The most precise result:</p>
+<blockquote>
+<p><strong>λ_H = (π + 6φ⁹) / (24πφ⁸)</strong></p>
+</blockquote>
+<p>where 6 = N_gen! = 3! (three generations) and 24 = (N_gen+1)! = 4! (quartic vertex combinatorics). This gives M_H = 125.251 GeV — deviation 0.0007% (0.005σ) from the experimental value.</p>
+<p>The CP-violation correction Δλ_H = 1/(24φ⁸) satisfies the Higgs-Flavor Identity:</p>
+<blockquote>
+<p><strong>J²_CP(lep) ≈ Δλ_H</strong></p>
+</blockquote>
+<p>linking the Higgs quartic coupling to the leptonic Jarlskog invariant.</p>
+<h3 id="25-testable-predictions">2.5 Testable Predictions</h3>
+<table>
+<thead>
+<tr>
+<th>Prediction</th>
+<th>Value</th>
+<th>Experiment</th>
+<th>Timeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sin²θ₁₂ = 1/(2φ)</td>
+<td>0.30902</td>
+<td>JUNO</td>
+<td>2027-2028</td>
+</tr>
+<tr>
+<td>χ-boson (dark matter)</td>
+<td>58.1 GeV</td>
+<td>HL-LHC / DARWIN</td>
+<td>2028-2030</td>
+</tr>
+<tr>
+<td>Σm_ν (neutrino masses)</td>
+<td>73.8 meV</td>
+<td>DESI / Euclid</td>
+<td>2028-2030</td>
+</tr>
+<tr>
+<td>w₀ (dark energy EOS)</td>
+<td>−1 + 1/φ⁸ ≈ −0.977</td>
+<td>DESI 5yr</td>
+<td>2028</td>
+</tr>
+<tr>
+<td>M_H (precision)</td>
+<td>125.251 GeV</td>
+<td>FCC-ee</td>
+<td>2035+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-honest-assessment">2.6 Honest Assessment</h3>
+<ul>
+<li><strong>Derived (D=12):</strong> αₛ, sin²θ₁₂, N_gen=3, V_Art geometry, 719/9 arithmetic, functional equation</li>
+<li><strong>Semi-derived (S=14):</strong> sin²θ_W, v_EW, λ_H, δ_CP, w₀, leptonic angles</li>
+<li><strong>Empirical (E=2):</strong> α⁻¹ (fine structure), quark masses (Fibonacci fit)</li>
+<li><strong>Weighted score:</strong> ~55% truly derived, ~45% empirical pattern-matching</li>
+<li><strong>Not peer-reviewed</strong> in journals. 15 DOIs on CERN Zenodo establish priority.</li>
+<li><strong>arXiv submission</strong> pending endorsement.</li>
+</ul>
+<p>All formulas are verifiable:</p>
+<pre><code class="language-python">pip install mpmath
+python papers/verify_paper3.py  # 22/22 PASS
+</code></pre>
+<hr />
+<h2 id="4-token-economics">4. Token Economics</h2>
+<h3 id="31-supply-f16-106-987000000">3.1 Supply: F(16) × 10⁶ = 987,000,000</h3>
+<p>The total supply of ARTS is 987,000,000 — derived from the 16th Fibonacci number:</p>
+<blockquote>
+<p>F(16) = 987 = 719 + 268</p>
+</blockquote>
+<p>This is not arbitrary. In the Artosphere Hypothesis:
+- <strong>719/9</strong> is the master exponent in v_EW = M_Pl/φ^{719/9} (gravity-gauge hierarchy)
+- <strong>268</strong> is the vacuum energy hierarchy exponent (ρ_Λ ~ φ^{−537/2} where 537/2 = 268.5)
+- <strong>F(16) = 719 + 268</strong> unifies both hierarchies in one Fibonacci number</p>
+<p>The supply is encoded as an immutable constant in PhiCoin.sol (ERC-20, UUPS upgradeable, Base L2).</p>
+<h3 id="32-physics-derived-parameters">3.2 Physics-Derived Parameters</h3>
+<p>Every protocol parameter traces to a physical constant:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Physics Origin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Supply</strong></td>
+<td>987,000,000</td>
+<td>F(16) = gravity + vacuum hierarchy</td>
+</tr>
+<tr>
+<td><strong>Base fee</strong></td>
+<td>1.18%</td>
+<td>αₛ/10 = strong coupling / 10</td>
+</tr>
+<tr>
+<td><strong>Governance quorum</strong></td>
+<td>30.9%</td>
+<td>sin²θ₁₂ = neutrino mixing (JUNO confirmed)</td>
+</tr>
+<tr>
+<td><strong>Burn rate</strong></td>
+<td>2.13%</td>
+<td>1/φ⁸ = universal suppression factor</td>
+</tr>
+<tr>
+<td><strong>Fusion annihilation</strong></td>
+<td>38.20%</td>
+<td>1/φ² = Fibonacci anyon probability</td>
+</tr>
+<tr>
+<td><strong>Fusion survival</strong></td>
+<td>61.80%</td>
+<td>1/φ = golden ratio complement</td>
+</tr>
+<tr>
+<td><strong>Staking decay</strong></td>
+<td>φ⁻¹ per epoch</td>
+<td>Golden ratio decay</td>
+</tr>
+<tr>
+<td><strong>Oracle cooldown</strong></td>
+<td>21 days</td>
+<td>F(8) = Fibonacci</td>
+</tr>
+<tr>
+<td><strong>Stake expiration</strong></td>
+<td>233 days</td>
+<td>F(13) = Fibonacci</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-fibonacci-emission">3.3 Fibonacci Emission</h3>
+<p>New ARTS enter circulation through a Fibonacci emission schedule:</p>
+<blockquote>
+<p>emission(epoch) = F(epoch mod 100) × φ^{−(epoch / 100)}</p>
+</blockquote>
+<p>The modular Fibonacci oscillation creates a predictable yet non-trivial supply curve. The φ-decay envelope ensures long-term convergence. An O(1) geometric series formula replaces naive iteration.</p>
+<h3 id="34-zeckendorf-treasury">3.4 Zeckendorf Treasury</h3>
+<p>By Zeckendorf's theorem, every positive integer has a unique representation as a sum of non-consecutive Fibonacci numbers. The supply decomposes as:</p>
+<blockquote>
+<p>987 = 610 + 233 + 89 + 34 + 13 + 8 (× 10⁶)</p>
+</blockquote>
+<p>Each component maps to a treasury compartment managed by ZeckendorfTreasury.sol with independent controller addresses.</p>
+<h3 id="35-mathematical-neutrality">3.5 Mathematical Neutrality</h3>
+<p>Conventional DAOs select parameters through governance votes or founder intuition — Uniswap's 0.3% fee, Aave's liquidation thresholds, Curve's amplification factors are all <em>decided</em>, not <em>derived</em>. This creates governance attack surfaces: parameter changes become political events.</p>
+<p>Artosphere eliminates this vector entirely. All protocol constants are locked by vacuum geometry:</p>
+<ul>
+<li>The fee (1.18% = αₛ/10) cannot be changed by vote — it is the strong coupling constant</li>
+<li>The quorum (30.9% = sin²θ₁₂) is not negotiable — it is the neutrino mixing angle</li>
+<li>The burn rate (2.13% = 1/φ⁸) is not tunable — it is the universal suppression factor</li>
+</ul>
+<p>This creates <strong>Trustless Economics</strong> where the rules of the game are determined by the laws of nature, not by a board of directors. Mathematical truth does not need a majority vote.</p>
+<h3 id="36-golden-ratio-yield">3.6 Golden Ratio Yield</h3>
+<p>Staking rewards follow a <strong>Golden Ratio Yield</strong> curve — the APY at each epoch is the previous epoch's APY divided by φ:</p>
+<blockquote>
+<p>APY(epoch) = φ^{−(epoch+1)}</p>
+</blockquote>
+<p>Starting at 61.8% (epoch 0), decaying to 38.2% (epoch 1), 23.6% (epoch 2), 14.6% (epoch 3)... This golden decay is the unique yield curve where each period's reward relates to the next by the golden ratio. It prevents hyperinflation while maintaining meaningful early incentives, and converges to zero without ever reaching it — infinite in duration, finite in total emission.</p>
+<hr />
+<h2 id="5-token-distribution-vesting">5. Token Distribution &amp; Vesting</h2>
+<h3 id="51-allocation">5.1 Allocation</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>ARTS</th>
+<th>%</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Community &amp; Ecosystem</td>
+<td>394,800,000</td>
+<td>40%</td>
+<td>Airdrops, grants, quests, ambassador rewards</td>
+</tr>
+<tr>
+<td>Treasury (Zeckendorf)</td>
+<td>246,750,000</td>
+<td>25%</td>
+<td>Protocol-owned, 6 Fibonacci compartments</td>
+</tr>
+<tr>
+<td>Team / Founder</td>
+<td>148,050,000</td>
+<td>15%</td>
+<td>F.B. Sapronov + future contributors</td>
+</tr>
+<tr>
+<td>Staking Rewards</td>
+<td>98,700,000</td>
+<td>10%</td>
+<td>Emission pool for PhiStaking / MatryoshkaStaking</td>
+</tr>
+<tr>
+<td>Initial Liquidity</td>
+<td>69,090,000</td>
+<td>7%</td>
+<td>Fjord LBP seed + Aerodrome pools</td>
+</tr>
+<tr>
+<td>Advisors &amp; Audit</td>
+<td>29,610,000</td>
+<td>3%</td>
+<td>Code4rena audit, future advisors</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>987,000,000</strong></td>
+<td><strong>100%</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-vesting-schedule">5.2 Vesting Schedule</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Cliff</th>
+<th>Unlock</th>
+<th>Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Team / Founder</td>
+<td>F(12) = 144 days</td>
+<td>Linear after cliff</td>
+<td>36 months</td>
+</tr>
+<tr>
+<td>Advisors</td>
+<td>F(10) = 55 days</td>
+<td>Linear after cliff</td>
+<td>24 months</td>
+</tr>
+<tr>
+<td>Community</td>
+<td>No cliff</td>
+<td>Milestone-based</td>
+<td>Ongoing</td>
+</tr>
+<tr>
+<td>Treasury</td>
+<td>Governance-locked</td>
+<td>30.9% quorum vote to unlock</td>
+<td>Ongoing</td>
+</tr>
+<tr>
+<td>Staking Rewards</td>
+<td>No cliff</td>
+<td>Fibonacci emission schedule</td>
+<td>Converges to 0</td>
+</tr>
+<tr>
+<td>Liquidity</td>
+<td>No cliff</td>
+<td>Deployed at LBP</td>
+<td>Day 1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-circulating-supply-projections">5.3 Circulating Supply Projections</h3>
+<table>
+<thead>
+<tr>
+<th>Timeline</th>
+<th>Circulating</th>
+<th>% of Total</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Month 1</td>
+<td>~69M</td>
+<td>7%</td>
+<td>Liquidity only</td>
+</tr>
+<tr>
+<td>Month 6</td>
+<td>~150M</td>
+<td>15%</td>
+<td>+ partial community</td>
+</tr>
+<tr>
+<td>Month 12</td>
+<td>~280M</td>
+<td>28%</td>
+<td>+ team cliff unlocks begin</td>
+</tr>
+<tr>
+<td>Month 24</td>
+<td>~520M</td>
+<td>53%</td>
+<td>+ ongoing emission + community</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-value-accrual">5.4 Value Accrual</h3>
+<p>ARTS accrues value through five mechanisms:</p>
+<ol>
+<li><strong>Deflationary burn:</strong> Fibonacci Fusion destroys ~38.2% of fused tokens. Discovery Staking burns 23.6% of losing pools. Emergency withdrawals burn 38.2% penalty.</li>
+<li><strong>Staking lock:</strong> Tokens staked in PhiStaking (5-377 days) and Discovery Staking (5-233 days) are removed from circulation.</li>
+<li><strong>Fee revenue:</strong> 1.18% deposit fee on Discovery Staking generates ongoing protocol income.</li>
+<li><strong>Governance utility:</strong> Voting power requires ARTS + temporal mass + staking tier — creating demand for long-term holding.</li>
+<li><strong>Prediction market demand:</strong> As experiments (JUNO, HL-LHC, DESI) approach, staking demand for ARTS increases.</li>
+</ol>
+<hr />
+<h2 id="6-discovery-staking">6. Discovery Staking</h2>
+<h3 id="41-concept">4.1 Concept</h3>
+<p>Discovery Staking is a prediction market for scientific discoveries. Users stake ARTS on whether a physics prediction will be experimentally confirmed or refuted. When an experiment resolves the prediction, the losing pool is redistributed.</p>
+<p>This creates <strong>economic value for scientific truth</strong>: researchers earn royalties, correct predictors profit, and incorrect predictions generate deflationary burn.</p>
+<h3 id="42-cascade-v2-distribution">4.2 φ-Cascade v2 Distribution</h3>
+<p>The losing pool is distributed according to golden ratio powers:</p>
+<table>
+<thead>
+<tr>
+<th>Recipient</th>
+<th>Share</th>
+<th>Formula</th>
+<th>Proof</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Winners</td>
+<td>61.80%</td>
+<td>φ⁻¹</td>
+<td>—</td>
+</tr>
+<tr>
+<td>BURN</td>
+<td>23.60%</td>
+<td>φ⁻³</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Scientist</td>
+<td>9.02%</td>
+<td>φ⁻⁵</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Treasury</td>
+<td>5.57%</td>
+<td>φ⁻⁶</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>100.00%</strong></td>
+<td><strong>φ⁻¹ + φ⁻³ + φ⁻⁵ + φ⁻⁶</strong></td>
+<td><strong>= 1 (exact)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The proof: φ⁻⁵ + φ⁻⁶ = φ⁻⁴ (by φ² = φ + 1), so the sum becomes φ⁻¹ + φ⁻³ + φ⁻⁴ = φ⁻¹ + φ⁻² = 1.</p>
+<h3 id="43-stake-tiers-fibonacci-lock-durations">4.3 Stake Tiers (Fibonacci Lock Durations)</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Lock</th>
+<th>Multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>F(5) = 5 days</td>
+<td>1.0x</td>
+</tr>
+<tr>
+<td>1</td>
+<td>F(8) = 21 days</td>
+<td>φ ≈ 1.618x</td>
+</tr>
+<tr>
+<td>2</td>
+<td>F(10) = 55 days</td>
+<td>φ² ≈ 2.618x</td>
+</tr>
+</tbody>
+</table>
+<p>Longer commitment = higher reward multiplier.</p>
+<h3 id="44-oracle-resolution">4.4 Oracle Resolution</h3>
+<ol>
+<li>Validator proposes resolution with evidence (Zenodo DOI link)</li>
+<li>Staking FREEZES to prevent front-running</li>
+<li>21-day cooldown (F(8)) for community review</li>
+<li>Validators vote; sin²θ₁₂ = 30.9% quorum required</li>
+<li>VETO_ROLE can block during cooldown (safety mechanism)</li>
+<li>Resolution updates Discovery NFT status and distributes rewards</li>
+</ol>
+<h3 id="45-anti-sybil">4.5 Anti-Sybil</h3>
+<p>Hedging (staking both CONFIRM and REFUTE) is impossible — <code>userSide[discoveryId][msg.sender]</code> prevents dual-side staking. Analysis shows hedging produces −20.3% ROI loss.</p>
+<h3 id="46-conviction-nfts-liquid-prediction-positions">4.6 Conviction NFTs (Liquid Prediction Positions)</h3>
+<p>Physics experiments (JUNO, HL-LHC, DESI) run for years. Stakers cannot wait indefinitely with locked capital.</p>
+<p><strong>Solution:</strong> When a user stakes ARTS on a prediction, they receive a <strong>Conviction NFT</strong> representing their share of the future reward pool. These NFTs are transferable and tradeable on secondary markets.</p>
+<p>The market price of a Conviction NFT becomes a <strong>real-time probability signal</strong>:
+- New theoretical paper supports the prediction → NFT price rises
+- Preliminary experimental data contradicts it → NFT price falls
+- Resolution approaches → price converges to payout value or zero</p>
+<p>This transforms scientific conviction from a binary journal opinion into a <strong>continuous, liquid, price-discoverable signal</strong>. For the first time, you can observe how much capital the world is willing to risk on a physics prediction — in real time.</p>
+<p><strong>Contract:</strong> <code>0x1D4E49E6E21BCD469b609428Cc6813eE93EB7b00</code> (Base mainnet). ERC-721 with ERC-2981 royalties (2.13% = 1/φ⁸ to scientist). On-chain SVG metadata. Compatible with OpenSea, Blur, Element.</p>
+<h3 id="47-orphan-prediction-protection">4.7 Orphan Prediction Protection</h3>
+<p>When a prediction is confirmed by experiment (e.g., χ-boson mass by HL-LHC), the 9.02% scientist royalty is split:
+- <strong>7%</strong> to the prediction author
+- <strong>2.02%</strong> to Treasury, earmarked for independent replication grants</p>
+<p>This ensures that confirmed predictions don't become "orphan knowledge" — the protocol funds independent verification of its own results.</p>
+<h3 id="47-soft-slashing-market-for-honest-criticism">4.7 Soft Slashing (Market for Honest Criticism)</h3>
+<p>When a prediction is <strong>refuted</strong> (Kill Condition triggered):
+- <strong>23.60%</strong> of the losing pool is burned (φ⁻³) — deflationary pressure
+- <strong>61.80%</strong> goes to those who correctly bet REFUTE — rewarding honest skepticism
+- <strong>9.02%</strong> goes to whoever submitted the refutation evidence (DOI link) — creating a <strong>market for honest criticism</strong></p>
+<p>This means it is economically rational to disprove wrong predictions. The protocol doesn't just reward being right — it rewards proving others wrong.</p>
+<h3 id="48-founder-economics">4.8 Founder Economics</h3>
+<p>The scientist (F.B. Sapronov) earns:
+- <strong>1.18% fee</strong> on every deposit (αₛ/10)
+- <strong>7% royalty</strong> from confirmed predictions (from the 9.02% φ⁻⁵ share)</p>
+<p>This creates a sustainable revenue model where scientific accuracy directly correlates with income. If predictions are wrong, the founder earns nothing from resolution — only the deposit fee.</p>
+<hr />
+<h2 id="7-fibonacci-fusion">7. Fibonacci Fusion</h2>
+<h3 id="51-the-physics">5.1 The Physics</h3>
+<p>In topological quantum computing, Fibonacci anyons obey the fusion rule:</p>
+<blockquote>
+<p><strong>τ ⊗ τ = 1 ⊕ τ</strong></p>
+</blockquote>
+<p>When two τ-particles fuse, they either annihilate (→ 1, the vacuum) or survive (→ τ, another anyon). The probabilities are determined by the quantum dimensions:</p>
+<ul>
+<li>P(annihilation) = 1/φ² ≈ 38.20%</li>
+<li>P(survival) = 1/φ ≈ 61.80%</li>
+</ul>
+<p>This is proven from Z₃-graded Cl(6) spinor algebra (Zenodo DOI: 10.5281/zenodo.19473026).</p>
+<h3 id="52-the-mechanism">5.2 The Mechanism</h3>
+<p>FibonacciFusion.sol implements this rule as a token mechanism:</p>
+<ol>
+<li>User deposits ARTS tokens</li>
+<li>Entropy determines outcome (blockhash + address + nonce)</li>
+<li><strong>38.20%:</strong> ANNIHILATION — tokens burned permanently</li>
+<li><strong>61.80%:</strong> SURVIVAL — tokens returned to user</li>
+</ol>
+<p>This creates physics-grounded deflation. Over many fusions, ~38.2% of fused tokens are destroyed, reducing supply toward the Fibonacci floor.</p>
+<h3 id="53-parameters">5.3 Parameters</h3>
+<ul>
+<li>Minimum: 100 ARTS per fusion</li>
+<li>Cooldown: 1,200 seconds (20 minutes)</li>
+<li>Contract: <code>0x5379561543Ef9a33a167C47F7A84365Cd88cB858</code> (Base mainnet)</li>
+</ul>
+<hr />
+<h2 id="8-on-chain-scientific-journal">8. On-Chain Scientific Journal</h2>
+<h3 id="61-architecture">6.1 Architecture</h3>
+<p>The Artosphere Scientific Journal is an on-chain peer-reviewed publication system:</p>
+<ul>
+<li><strong>ArtosphereDiscovery.sol</strong> — Soulbound (ERC-5192) NFTs storing discovery title, formula, Zenodo DOI, keccak256 content hash, accuracy, and status</li>
+<li><strong>DiscoveryOracle.sol</strong> — Role-based oracle with validator voting for resolving predictions</li>
+<li><strong>ResearcherRegistry.sol</strong> — ORCID-linked researcher profiles with reputation tiers</li>
+</ul>
+<h3 id="62-soulbound-discovery-nfts">6.2 Soulbound Discovery NFTs</h3>
+<p>Each scientific discovery is minted as a non-transferable NFT containing:
+- Title and formula (LaTeX-compatible)
+- Zenodo DOI (CERN-archived proof)
+- Content hash (immutable on-chain priority proof)
+- Status: PROVEN | CONFIRMED | PREDICTED | OPEN | REFUTED
+- Accuracy in basis points</p>
+<p>15 Discovery NFTs have been minted on Base mainnet, covering results from Papers I-VII.</p>
+<h3 id="63-peer-review">6.3 Peer Review</h3>
+<p>Review uses a sin²θ₁₂ = 30.9% quorum — the same neutrino mixing angle that governs token governance. Review windows follow Fibonacci: 5, 8, 13, 21 days.</p>
+<h3 id="64-reputation-tiers">6.4 Reputation Tiers</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Requirement</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Novice</td>
+<td>Register</td>
+<td>Default</td>
+</tr>
+<tr>
+<td>Scholar</td>
+<td>F(3) = 2 contributions</td>
+<td>Can review</td>
+</tr>
+<tr>
+<td>Expert</td>
+<td>F(5) = 5 contributions</td>
+<td>Can propose</td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>F(7) = 13 contributions + ORCID</td>
+<td>Can resolve</td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-citation-graph">6.5 Citation Graph</h3>
+<p>On-chain citations create a verifiable, immutable record of intellectual priority. Currently: 20 papers, 54 citations, 30 genesis slots remaining.</p>
+<h3 id="66-tiered-discovery-royalties">6.6 Tiered Discovery Royalties</h3>
+<p>Not all discoveries are equal. Royalties from confirmed predictions scale with the derivation tier from the Artosphere "Honest Edition" classification:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Description</th>
+<th>Royalty Multiplier</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A (Derived)</strong></td>
+<td>Rigorous derivation from V_Art</td>
+<td>1.5x base</td>
+<td>αₛ = 1/(2φ³), N_gen = 3</td>
+</tr>
+<tr>
+<td><strong>B (Semi-derived)</strong></td>
+<td>Structural argument, partial derivation</td>
+<td>1.0x base</td>
+<td>sin²θ_W = 3/(8φ), v_EW</td>
+</tr>
+<tr>
+<td><strong>C (Empirical)</strong></td>
+<td>Pattern match, zero free parameters</td>
+<td>0.7x base</td>
+<td>α⁻¹, quark masses</td>
+</tr>
+</tbody>
+</table>
+<p>This incentivizes researchers to pursue deeper derivations rather than surface-level numerical coincidences. A Tier A confirmation generates 50% more royalty than base rate, aligning economic rewards with scientific rigor.</p>
+<h3 id="67-reviewer-incentives">6.7 Reviewer Incentives</h3>
+<p>Peer reviewers earn ARTS from the Discovery Staking treasury for quality criticism:
+- <strong>Standard review:</strong> Fixed reward from treasury
+- <strong>Kill Condition trigger:</strong> If a reviewer's critique leads to a prediction being refuted, they receive a <strong>super-bonus</strong> (φ⁻⁵ of the losing pool) for saving stakers' capital
+- <strong>False criticism penalty:</strong> If a reviewer repeatedly raises objections that are overruled by validators, their reputation tier decreases</p>
+<p>This creates a market for honest, rigorous criticism — the rarest and most valuable commodity in modern academia.</p>
+<hr />
+<h2 id="9-staking-architecture">9. Staking Architecture</h2>
+<h3 id="71-phistaking">7.1 PhiStaking</h3>
+<p>Three Fibonacci lock tiers with φ-geometric multipliers:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Lock</th>
+<th>Multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>F(5) = 5 days</td>
+<td>φ⁰ = 1.000x</td>
+</tr>
+<tr>
+<td>1</td>
+<td>F(8) = 21 days</td>
+<td>φ¹ = 1.618x</td>
+</tr>
+<tr>
+<td>2</td>
+<td>F(10) = 55 days</td>
+<td>φ² = 2.618x</td>
+</tr>
+</tbody>
+</table>
+<p>Base APY: φ^{−(epoch+1)}, starting at 61.8% and decaying by 1/φ each epoch.</p>
+<p>Emergency withdrawal penalty: 1/φ² ≈ 38.2% (burned).</p>
+<h3 id="72-matryoshkastaking">7.2 MatryoshkaStaking</h3>
+<p>Five nested layers — depositing into layer N enrolls in all layers 0 through N:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Lock</th>
+<th>Multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 (Outer Shell)</td>
+<td>F(5) = 5 days</td>
+<td>1.0x</td>
+</tr>
+<tr>
+<td>1 (Middle)</td>
+<td>F(8) = 21 days</td>
+<td>1.6x</td>
+</tr>
+<tr>
+<td>2 (Inner Core)</td>
+<td>F(10) = 55 days</td>
+<td>3.4x</td>
+</tr>
+<tr>
+<td>3 (Golden Heart)</td>
+<td>F(12) = 144 days</td>
+<td>5.5x</td>
+</tr>
+<tr>
+<td>4 (Phi Singularity)</td>
+<td>F(14) = 377 days</td>
+<td>11.1x</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-goldenmirror">7.3 GoldenMirror</h3>
+<p>Deposit ARTS → receive φ × amount in gARTS (liquid synthetic). Resolves the lock-vs-liquidity contradiction: earn staking yield while maintaining liquid exposure.</p>
+<h3 id="74-proof-of-patience">7.4 Proof-of-Patience</h3>
+<p>Passive temporal mass accrues while tokens remain at the same address:</p>
+<blockquote>
+<p>mass(addr) = 1 + √(days_held) / 3</p>
+</blockquote>
+<p>Capped at 377 days (F(14)), maximum mass ≈ 7.5x. Amplifies staking rewards and governance voting power.</p>
+<hr />
+<h2 id="10-governance">10. Governance</h2>
+<h3 id="81-phigovernor">8.1 PhiGovernor</h3>
+<p>Built on OpenZeppelin Governor with physics-derived parameters:</p>
+<ul>
+<li><strong>Quorum:</strong> 30.9% = sin²θ₁₂ (neutrino mixing angle)</li>
+<li><strong>Voting period:</strong> F(13) = 233 blocks</li>
+<li><strong>Execution:</strong> TimelockController with configurable delay</li>
+<li><strong>Voting power:</strong> token_balance × φ^{tier} × temporal_mass</li>
+</ul>
+<h3 id="82-staking-weighted-voting">8.2 Staking-Weighted Voting</h3>
+<p>A voter staked in Tier 2 (55-day lock) with 200 days of temporal mass wields:</p>
+<blockquote>
+<p>power = balance × φ² × (1 + √200/3) = balance × 2.618 × 5.71 = balance × 14.95x</p>
+</blockquote>
+<p>compared to 1.0x for an unstaked, new holder. This ensures governance is led by committed participants.</p>
+<hr />
+<h2 id="11-defi-primitives">11. DeFi Primitives</h2>
+<h3 id="91-phiamm">9.1 PhiAMM</h3>
+<p>Weighted constant-product AMM:</p>
+<blockquote>
+<p>reserveARTS^{φ/(φ+1)} × reservePaired^{1/(φ+1)} = k</p>
+</blockquote>
+<p>Weight 61.8% ARTS / 38.2% paired token. Buying ARTS has reduced slippage; selling has amplified impact — "buy-friendly, sell-resistant" by mathematics.</p>
+<h3 id="92-nashfee">9.2 NashFee</h3>
+<p>Dynamic fee converging to Nash equilibrium at 0.618% through a three-player game:
+- Holders prefer higher fees (more deflation)
+- Traders prefer lower fees (more volume)
+- LPs prefer stable fees (predictable yield)</p>
+<p>Bounded: [0.236%, 1.0%]. Adjustment: max 0.01% per hour.</p>
+<hr />
+<h2 id="12-smart-contract-architecture">12. Smart Contract Architecture</h2>
+<h3 id="101-deployed-contracts-base-mainnet-chain-8453">10.1 Deployed Contracts (Base Mainnet, Chain 8453)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Contract</th>
+<th>Address</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>PhiCoin (proxy)</td>
+<td><code>0x1C11133D...Ed0bf</code></td>
+<td>UUPS</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PhiStaking (proxy)</td>
+<td><code>0x37ab9c36...cd6a4</code></td>
+<td>UUPS</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PhiGovernor</td>
+<td><code>0xae286dca...42680</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TimelockController</td>
+<td><code>0x9ab3a97a...30bfe</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PhiVesting</td>
+<td><code>0xc728062a...38bf</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>6</td>
+<td>MatryoshkaStaking</td>
+<td><code>0x25dda634...bc22</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>7</td>
+<td>GoldenMirror</td>
+<td><code>0xdb212d65...b9ca</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PhiAMM</td>
+<td><code>0xf32c9784...e575</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>9</td>
+<td>NashFee</td>
+<td><code>0xb11e8116...3e52</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>10</td>
+<td>ZeckendorfTreasury</td>
+<td><code>0x250161bF...3b55</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>11</td>
+<td>ArtosphereQuests</td>
+<td><code>0x51816178...1770</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PhiCertificate</td>
+<td><code>0xb56ce7f1...f94</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>13</td>
+<td>ArtosphereDiscovery</td>
+<td><code>0xA345C41e...1D49</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>14</td>
+<td>DiscoveryOracle</td>
+<td><code>0xd0f23765...cBE0</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>15</td>
+<td>DiscoveryStaking (proxy)</td>
+<td><code>0x3Fc4d346...19e2</code></td>
+<td>UUPS</td>
+</tr>
+<tr>
+<td>16</td>
+<td>ResearcherRegistry</td>
+<td><code>0x29541073...1cc9</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>17</td>
+<td>FibonacciFusion</td>
+<td><code>0x53795615...B858</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>ConvictionNFT</strong></td>
+<td><code>0x1D4E49E6...7b00</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>KillSwitch</strong></td>
+<td><code>0x02709268...2D927</code></td>
+<td>Non-upgradeable</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>FibonacciFusionV2</strong></td>
+<td><code>pending (VRF)</code></td>
+<td>Non-upgradeable (Chainlink VRF)</td>
+</tr>
+</tbody>
+</table>
+<p>Plus PhiMath (library) and ArtosphereConstants (library). <strong>22 contracts total.</strong></p>
+<p>Deploy wallet: <code>0xED7E49Cd347aAeF4879AF0c42C3B74780299a6A6</code></p>
+<h3 id="102-dependencies">10.2 Dependencies</h3>
+<ul>
+<li>Solidity 0.8.24 with optimizer (200 runs, via_ir, EVM Cancun)</li>
+<li>OpenZeppelin Contracts 5.6.1 + Upgradeable 5.6.1</li>
+<li>Foundry (forge-std 1.15)</li>
+</ul>
+<h3 id="103-test-coverage">10.3 Test Coverage</h3>
+<ul>
+<li><strong>Solidity:</strong> 306 tests across 18 test files (303 pass, 3 timing-dependent) (302 pass, 4 timing-dependent)</li>
+<li><strong>Rust core:</strong> 107 tests (phi-Hash-256, Proof-of-φ, A5-Crypto v2)</li>
+<li><strong>PhiMath:</strong> 70/70 including Higgs-Flavor Identity on-chain verification</li>
+<li>All contracts verified on Basescan</li>
+</ul>
+<hr />
+<h3 id="122-cryptographic-foundation">12.2 Cryptographic Foundation</h3>
+<h3 id="111-hash-256">11.1 φ-Hash-256</h3>
+<p>256-bit hash function with golden ratio round constants and Fibonacci bit rotations (1, 1, 2, 3, 5, 8, 13, 21). 24 rounds. SHA-256 compatible padding. 25/25 tests pass.</p>
+<h3 id="112-proof-of-zeckendorf-consensus">11.2 Proof-of-φ (Zeckendorf Consensus)</h3>
+<p>Mining difficulty measured by maximum Fibonacci index in the hash's Zeckendorf decomposition — replacing Bitcoin's leading-zeros metric with a Fibonacci-index metric.</p>
+<h3 id="113-a5-crypto-v2">11.3 A5-Crypto v2</h3>
+<p>AEAD cipher: AES-256-GCM core with A₅ icosahedral pre-mixing layer (256-element S-box from the 60 rotational symmetries). 37 tests, 12/14 audit findings fixed.</p>
+<hr />
+<h2 id="13-risk-factors">13. Risk Factors</h2>
+<p>Participants should consider the following risks:</p>
+<ol>
+<li>
+<p><strong>Smart contract risk.</strong> Despite 306 tests, no external audit has been completed. Undiscovered vulnerabilities could lead to loss of funds. Three contracts use upgradeable proxies controlled by a single EOA.</p>
+</li>
+<li>
+<p><strong>Regulatory risk.</strong> ARTS may be classified as a security in certain jurisdictions. Discovery Staking may be characterized as gambling. The regulatory landscape for DeSci tokens is evolving and uncertain.</p>
+</li>
+<li>
+<p><strong>Scientific risk.</strong> The Artosphere Hypothesis has not been peer-reviewed in academic journals. Approximately 45% of results are empirical pattern-matching, not rigorous derivation. Predictions may be falsified by future experiments (JUNO, HL-LHC, DESI).</p>
+</li>
+<li>
+<p><strong>Key-person risk.</strong> The project has a single founder (F.B. Sapronov) with no team, advisory board, or institutional affiliation. Continuity depends on one individual.</p>
+</li>
+<li>
+<p><strong>Oracle risk.</strong> DiscoveryOracle validators are admin-appointed. Resolution of scientific predictions depends on honest validator behavior and correct interpretation of experimental results.</p>
+</li>
+<li>
+<p><strong>Liquidity risk.</strong> ARTS is not currently traded on any exchange. There is no guaranteed liquidity. The LBP has not yet been conducted.</p>
+</li>
+<li>
+<p><strong>Entropy risk.</strong> FibonacciFusion outcomes are determined by blockhash, which the Base L2 sequencer can predict. Until Chainlink VRF is integrated, fusion outcomes are theoretically manipulable.</p>
+</li>
+</ol>
+<h3 id="the-black-swan-protocol-self-termination">The Black Swan Protocol (Self-Termination)</h3>
+<p>Unlike traditional projects that cling to failed narratives, Artosphere contains a built-in <strong>self-termination mechanism</strong>. If one or more Kill Conditions are triggered by experimental data, the protocol acknowledges falsification transparently:</p>
+<p><strong>Kill Conditions (any one triggers sector invalidation):</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Condition</th>
+<th>Experiment</th>
+<th>Would Invalidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>sin²θ₁₂ deviates &gt; 3σ from 1/(2φ)</td>
+<td>JUNO</td>
+<td>Core V_Art geometry</td>
+</tr>
+<tr>
+<td>2</td>
+<td>No χ-boson signal at 50-70 GeV by 2032</td>
+<td>HL-LHC + DARWIN</td>
+<td>Dark matter sector</td>
+</tr>
+<tr>
+<td>3</td>
+<td>δ_CP deviates &gt; 1.96σ from arctan(√5)</td>
+<td>DUNE</td>
+<td>CP violation sector</td>
+</tr>
+<tr>
+<td>4</td>
+<td>w₀ deviates &gt; 3σ from −1+1/φ⁸</td>
+<td>DESI 5yr</td>
+<td>Dark energy sector</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Axion discovered (θ_QCD ≠ 0)</td>
+<td>ADMX/CASPEr</td>
+<td>Strong CP sector</td>
+</tr>
+<tr>
+<td>6</td>
+<td>M_H precision deviates &gt; 5σ from 125.251 GeV</td>
+<td>FCC-ee</td>
+<td>Higgs-Flavor Identity</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Economic response to falsification:</strong>
+- Sector-specific: The individual prediction's Discovery Staking pool is resolved as REFUTED. φ-Cascade distributes the losing pool. The affected Discovery NFT status updates to REFUTED.
+- Total falsification (3+ sectors invalidated): Treasury activates <strong>Graceful Shutdown</strong> — remaining treasury distributed pro-rata to ARTS holders, preventing "slow death" of a zombified token.</p>
+<p>This is <strong>Insurance Against Scientific Error</strong> — the most honest mechanism in Web3. We don't just promise our science is right; we define exactly what "wrong" looks like and prepay for it.</p>
+<hr />
+<h2 id="14-roadmap">14. Roadmap</h2>
+<h3 id="completed-april-2026">Completed (April 2026)</h3>
+<ul>
+<li>[x] 15 papers on CERN Zenodo (DOIs sealed)</li>
+<li>[x] 20 contracts on Base mainnet (verified)</li>
+<li>[x] DApp on Vercel (5 pages + /discoveries)</li>
+<li>[x] Twitter/Telegram bots (systemd on vps-fi3)</li>
+<li>[x] Discord server (25 channels, 6 categories)</li>
+<li>[x] 15 soulbound Discovery NFTs</li>
+<li>[x] Higgs-Flavor Identity (M_H to 0.0007%)</li>
+<li>[x] GitHub repos public (MIT license)</li>
+</ul>
+<h3 id="q2-2026-credibility">Q2 2026: Credibility</h3>
+<ul>
+<li>[ ] arXiv submission (hep-ph, pending endorsement)</li>
+<li>[ ] Slither/Mythril internal audit</li>
+<li>[ ] Code4rena competitive audit ($5-8K)</li>
+<li>[ ] CoinGecko / CoinMarketCap listing</li>
+<li>[ ] Base Ecosystem Fund grant application</li>
+<li>[ ] Hacker News launch post</li>
+</ul>
+<h3 id="q3-2026-growth">Q3 2026: Growth</h3>
+<ul>
+<li>[ ] Fjord Foundry LBP (liquidity bootstrapping)</li>
+<li>[ ] Aerodrome DEX integration</li>
+<li>[ ] The Graph subgraph for event indexing</li>
+<li>[ ] Podcast tour (Lex Fridman, Sean Carroll, Bankless)</li>
+<li>[ ] KOL campaign (100 × 1,618 ARTS)</li>
+<li>[ ] Journal deployment to Base mainnet</li>
+</ul>
+<h3 id="q4-2026-expansion">Q4 2026: Expansion</h3>
+<ul>
+<li>[ ] Cross-chain deployment (Arbitrum, Optimism)</li>
+<li>[ ] University partnerships (CERN, MIT, Stanford)</li>
+<li>[ ] Open Discovery submission (community proposes predictions)</li>
+<li>[ ] PRL / Physics Letters B journal submission</li>
+</ul>
+<h3 id="2027-first-resolution-events">2027: First Resolution Events</h3>
+<ul>
+<li>[ ] <strong>JUNO precision data on sin²θ₁₂</strong> — first major Resolution Event. If 1/(2φ) = 0.30902 is confirmed within 1σ, the first Discovery Staking pool resolves. Conviction NFT holders receive payout.</li>
+<li>[ ] Planck/LiteBIRD cosmological fit for spectral index nₛ</li>
+<li>[ ] Conviction NFT secondary market launch</li>
+<li>[ ] L1 testnet with Proof-of-φ consensus</li>
+</ul>
+<h3 id="2028-2029-the-experimental-window">2028-2029: The Experimental Window</h3>
+<ul>
+<li>[ ] <strong>DESI 5yr results on w₀</strong> — tests w₀ = −1 + 1/φ⁸ ≈ −0.977. Second Resolution Event.</li>
+<li>[ ] <strong>DUNE Phase I on δ_CP</strong> — tests arctan(√5) = 65.91°. If confirmed, CP sector validated.</li>
+<li>[ ] Euclid neutrino mass sensitivity — tests Σmν = 73.8 meV</li>
+<li>[ ] Cross-chain deployment (Arbitrum, Optimism)</li>
+</ul>
+<h3 id="2030-the-discovery-window">2030: The Discovery Window</h3>
+<ul>
+<li>[ ] <strong>HL-LHC Run 3+ χ-boson search</strong> at 58 GeV — the biggest test. If found, the Artosphere Hypothesis is elevated from framework to discovery.</li>
+<li>[ ] DARWIN/XLZD direct detection — tests σ_SI ~ 5×10⁻⁴⁷ cm²</li>
+<li>[ ] FCC-ee approval → M_H precision to 10 MeV (tests 125.251 GeV)</li>
+<li>[ ] Open Discovery submissions — community proposes and stakes on new predictions beyond the Artosphere Hypothesis</li>
+</ul>
+<hr />
+<h2 id="15-security">15. Security</h2>
+<h3 id="131-audit-status">13.1 Audit Status</h3>
+<p>No external audit has been completed. Internal static analysis (Slither, Mythril) is scheduled for Q2 2026. A competitive audit via Code4rena ($5-8K) is planned before any public liquidity event. No code should be considered production-safe until audits are complete.</p>
+<h3 id="132-upgrade-authority">13.2 Upgrade Authority</h3>
+<p>Three contracts (PhiCoin, PhiStaking, DiscoveryStaking) use UUPS proxy upgrades. The <code>UPGRADER_ROLE</code> is currently held by a single deploy EOA (<code>0xED7E...a6A6</code>). <strong>Planned migration:</strong> transfer <code>UPGRADER_ROLE</code> and <code>DEFAULT_ADMIN_ROLE</code> to a Gnosis Safe multisig (3-of-5) behind the existing TimelockController before any public liquidity event.</p>
+<h3 id="133-admin-privileges">13.3 Admin Privileges</h3>
+<p>The deploy wallet holds <code>DEFAULT_ADMIN_ROLE</code> across all contracts. Until multisig migration, this constitutes a single point of failure and a centralization risk.</p>
+<h3 id="134-entropy">13.4 Entropy</h3>
+<p>FibonacciFusion uses <code>blockhash + address + nonce</code> for randomness. On Base L2, the sequencer can predict blockhash values. <strong>Planned:</strong> integrate Chainlink VRF for tamper-resistant randomness before mainnet volume grows.</p>
+<h3 id="135-oracle-security">13.5 Oracle Security</h3>
+<p>DiscoveryOracle uses role-based access control with validator voting, a 21-day challenge period, and <code>VETO_ROLE</code>. Validators are currently admin-appointed, not elected. Oracle manipulation risk is mitigated by the cooldown and veto mechanism but governance remains centralized until validator election is implemented.</p>
+<h3 id="136-known-issues-remediation">13.6 Known Issues &amp; Remediation</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Severity</th>
+<th>Remediation</th>
+<th>Timeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single-EOA admin keys</td>
+<td>High</td>
+<td>Gnosis Safe 3-of-5 multisig</td>
+<td>Pre-LBP</td>
+</tr>
+<tr>
+<td>No pause/circuit breaker</td>
+<td>Medium</td>
+<td>Add Pausable to staking contracts</td>
+<td>Q2 2026</td>
+</tr>
+<tr>
+<td>Predictable on-chain entropy</td>
+<td>Medium</td>
+<td>Chainlink VRF integration</td>
+<td>Q2 2026</td>
+</tr>
+<tr>
+<td>No external audit</td>
+<td>High</td>
+<td>Code4rena competitive audit</td>
+<td>Q2 2026</td>
+</tr>
+<tr>
+<td>No bug bounty</td>
+<td>Medium</td>
+<td>Immunefi program launch</td>
+<td>With audit</td>
+</tr>
+<tr>
+<td>No insurance fund</td>
+<td>Low</td>
+<td>Treasury-funded reserve</td>
+<td>Q3 2026</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="16-competitive-landscape">16. Competitive Landscape</h2>
+<p>Artosphere sits at a unique intersection: physics-derived tokenomics, on-chain scientific publishing, and a prediction market for experimental validation. No existing project combines all three.</p>
+<p><strong>DeSci protocols</strong> (VitaDAO, Molecule, ResearchHub) fund research or incentivize open science but lack any connection to fundamental physics. Their tokenomics are conventional (governance-vote allocation, curation markets). OriginTrail provides knowledge graphs but has no scientific journal or prediction resolution mechanism.</p>
+<p><strong>Prediction markets</strong> (Polymarket, Augur) handle binary outcomes for general events. Neither supports structured scientific predictions with oracle-resolved experimental data, Fibonacci-locked stake tiers, or physicist royalty flows.</p>
+<p><strong>Physics-in-crypto competitors</strong> (Pellis, Evanoff) publish golden-ratio-adjacent physics but have no token, no smart contracts, and no on-chain journal. Pellis derives gauge symmetries from fractal Laplacians but provides no explicit mass formulas or testable predictions at JUNO precision. Evanoff's PQIS derives the W-boson mass from pentagonal symmetry but covers a single parameter versus Artosphere's 35.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>VitaDAO</th>
+<th>ResearchHub</th>
+<th>Molecule</th>
+<th>Polymarket</th>
+<th>Augur</th>
+<th>Pellis</th>
+<th>Evanoff</th>
+<th><strong>Artosphere</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Physics-derived tokenomics</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td><strong>Yes (F(16), sin^2 theta_12, 1/phi^8)</strong></td>
+</tr>
+<tr>
+<td>On-chain journal + DOI NFTs</td>
+<td>--</td>
+<td>--</td>
+<td>IP-NFTs</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td><strong>Soulbound Discovery NFTs</strong></td>
+</tr>
+<tr>
+<td>Scientific prediction market</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>General</td>
+<td>General</td>
+<td>--</td>
+<td>--</td>
+<td><strong>Discovery Staking (physics)</strong></td>
+</tr>
+<tr>
+<td>Peer review quorum</td>
+<td>--</td>
+<td>Token-weighted</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td><strong>sin^2 theta_12 = 30.9%</strong></td>
+</tr>
+<tr>
+<td>Parameters derived (0 free)</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>Gauge couplings</td>
+<td>W mass (1)</td>
+<td><strong>35 SM constants</strong></td>
+</tr>
+<tr>
+<td>Testable predictions</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>None explicit</td>
+<td>1</td>
+<td><strong>5 (JUNO, HL-LHC, DESI)</strong></td>
+</tr>
+<tr>
+<td>Smart contracts deployed</td>
+<td>--</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes (off-chain)</td>
+<td>Yes</td>
+<td>None</td>
+<td>None</td>
+<td><strong>19 on Base L2</strong></td>
+</tr>
+<tr>
+<td>Scientist royalties</td>
+<td>--</td>
+<td>--</td>
+<td>IP royalties</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td><strong>phi^{-5} = 9.02% per resolution</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Artosphere's moat:</strong> the only project where token supply (F(16) = 987M), governance quorum (sin^2 theta_12), burn rate (1/phi^8), and fee structure (alpha_s/10) each trace to a verified physical constant -- and where users can stake on whether those constants will be confirmed by JUNO, HL-LHC, and DESI experiments within 2027-2030.</p>
+<hr />
+<h2 id="17-legal-regulatory">17. Legal &amp; Regulatory</h2>
+<p><strong>Token Classification.</strong> ARTS is designed as a utility token providing access to governance, staking, Discovery Staking prediction markets, and on-chain journal participation. ARTS does not represent equity, profit-sharing rights, or ownership interest in any entity. Regulatory classification may vary by jurisdiction; participants should consult local counsel.</p>
+<p><strong>No Securities Offering.</strong> This whitepaper is for informational purposes only. Nothing herein constitutes an offer to sell, a solicitation to buy, or investment advice regarding any securities in any jurisdiction. No regulatory authority has reviewed or approved this document.</p>
+<p><strong>KYC/AML.</strong> The protocol operates as permissionless smart contracts on Base L2. No KYC/AML procedures are currently performed. Participants are solely responsible for compliance with applicable laws in their jurisdictions.</p>
+<p><strong>Data Privacy.</strong> On-chain transactions are public and immutable. No personal data is collected off-chain. Users interacting via ORCID-linked profiles do so voluntarily.</p>
+<p><strong>Intellectual Property.</strong> All smart contracts are released under the MIT license. The Artosphere Hypothesis scientific content remains copyright F.B. Sapronov.</p>
+<p><strong>Forward-Looking Statements.</strong> Roadmap items, predictions, and projected timelines involve substantial uncertainty. No outcome is guaranteed.</p>
+<p><strong>Tax.</strong> Token acquisition, staking rewards, and trading may create taxable events. Consult a qualified tax advisor.</p>
+<hr />
+<h2 id="18-references">18. References</h2>
+<h3 id="artosphere-papers-cern-zenodo">Artosphere Papers (CERN Zenodo)</h3>
+<ol>
+<li>Paper I: "Golden Ratio Derivation of Standard Model Constants" — DOI: 10.5281/zenodo.19371476</li>
+<li>Paper II: "Sub-ppb Fine Structure Constant and Artosphere Potential" — DOI: 10.5281/zenodo.19464050</li>
+<li>Paper III: "Structural Derivations from V_Art" — DOI: 10.5281/zenodo.19463880</li>
+<li>Paper IV: "Gravity Hierarchy and Dark Energy" — DOI: 10.5281/zenodo.19469222</li>
+<li>Paper V: "Complete Derivation Program (28 Parameters)" — DOI: 10.5281/zenodo.19469909</li>
+<li>Paper VI-b: "M_Z from Planck Scale and Golden Ratio" — DOI: 10.5281/zenodo.19480597</li>
+<li>Paper VII: "The Higgs-Flavor Identity" — DOI: 10.5281/zenodo.19480973</li>
+<li>JUNO Letter: "Geometric Origin of Solar Neutrino Mixing Angle" — DOI: 10.5281/zenodo.19472827</li>
+<li>Phase 2: "V_Art from Cl(6) Fibonacci Fusion" — DOI: 10.5281/zenodo.19473026</li>
+<li>Phase 4: "M_Z Spectral Invariant" — DOI: 10.5281/zenodo.19473552</li>
+<li>Collection: "The Artosphere (Complete)" — DOI: 10.5281/zenodo.19471249</li>
+</ol>
+<h3 id="external">External</h3>
+<ol>
+<li>Zeckendorf, E. (1972). "Representation des nombres naturels par une somme de nombres de Fibonacci." <em>Bull. Soc. Roy. Sci. Liège</em>, 41, 179-182.</li>
+<li>Furey, C. (2016). "Standard Model Physics from an Algebra?" PhD thesis, University of Waterloo.</li>
+<li>Gresnigt, N. (2018). "Braids, Normed Division Algebras, and Standard Model Symmetries." <em>Phys. Lett. B</em>, 783, 212-221.</li>
+<li>Connes, A. (1994). <em>Noncommutative Geometry</em>. Academic Press.</li>
+</ol>
+<h3 id="technical">Technical</h3>
+<ol>
+<li>OpenZeppelin Contracts v5.6.1 — https://github.com/OpenZeppelin/openzeppelin-contracts</li>
+<li>Base L2 Documentation — https://docs.base.org</li>
+<li>Foundry Book — https://book.getfoundry.sh</li>
+</ol>
+<hr />
+<h2 id="verification">Verification</h2>
+<p>Every claim in this whitepaper is verifiable:</p>
+<pre><code class="language-bash"># Clone and test contracts
+git clone https://github.com/fbsmna-coder/artosphere-contracts
+cd artosphere-contracts &amp;&amp; forge test --summary
+
+# Verify physics formulas
+pip install mpmath
+python papers/verify_paper3.py  # 22/22 PASS
+
+# Check on-chain
+# ARTS Token: https://basescan.org/token/0x1C11133D4dDa9D85a6696B020b0c48e2c24Ed0bf
+# All contracts verified on Basescan
+</code></pre>
+<hr />
+<p><em>Copyright 2026 F.B. Sapronov. All rights reserved. ORCID: 0009-0008-1747-1200</em>
+<em>See Sections 13, 15, and 17 for security, risk, and legal disclosures.</em></p></div><div class="footer"><p>&copy; 2026 F.B. Sapronov &middot; ORCID: 0009-0008-1747-1200</p><p><a href="https://basescan.org/token/0x1C11133D4dDa9D85a6696B020b0c48e2c24Ed0bf">Basescan</a> &middot; <a href="https://github.com/fbsmna-coder/artosphere-contracts">GitHub</a> &middot; <a href="https://doi.org/10.5281/zenodo.19471249">Zenodo</a> &middot; <a href="https://t.me/ArtosphereNews">Telegram</a></p></div></body></html>

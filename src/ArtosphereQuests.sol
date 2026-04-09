@@ -4,12 +4,14 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./PhiMath.sol";
 
 /// @title ArtosphereQuests — Fibonacci Quest System
 /// @notice Users complete 8 quests following Fibonacci durations to learn φ-math and earn ARTS
 /// @dev Quest milestones: 1,1,2,3,5,8,13,21 days; rewards mirror Fibonacci sequence in ARTS
 contract ArtosphereQuests is Ownable, ReentrancyGuard {
+    using SafeERC20 for IERC20;
     /// @notice Total number of quests (Fibonacci sequence length)
     uint256 public constant NUM_QUESTS = 8;
 
@@ -113,7 +115,7 @@ contract ArtosphereQuests is Ownable, ReentrancyGuard {
         p.totalEarned += reward;
         totalRewardsDistributed += reward;
 
-        require(artsToken.transfer(msg.sender, reward), "Reward transfer failed");
+        artsToken.safeTransfer(msg.sender, reward);
 
         emit QuestCompleted(msg.sender, qi, reward);
 
@@ -148,14 +150,18 @@ contract ArtosphereQuests is Ownable, ReentrancyGuard {
 
     /// @notice Fund the contract with ARTS tokens (owner only)
     function fundRewards(uint256 amount) external onlyOwner {
-        require(artsToken.transferFrom(msg.sender, address(this), amount), "Fund transfer failed");
+        artsToken.safeTransferFrom(msg.sender, address(this), amount);
     }
 
     /// @notice Withdraw unused reward tokens (owner only)
+    /// @dev Only withdraws balance minus unclaimed rewards (maxTotalRewards - totalRewardsDistributed)
     function withdrawUnused() external onlyOwner {
         uint256 balance = artsToken.balanceOf(address(this));
-        if (balance > 0) {
-            artsToken.transfer(owner(), balance);
-        }
+        uint256 unclaimed = maxTotalRewards > totalRewardsDistributed
+            ? maxTotalRewards - totalRewardsDistributed
+            : 0;
+        require(balance > unclaimed, "No unused tokens to withdraw");
+        uint256 withdrawable = balance - unclaimed;
+        artsToken.safeTransfer(owner(), withdrawable);
     }
 }

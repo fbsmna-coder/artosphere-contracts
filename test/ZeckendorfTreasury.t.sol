@@ -18,7 +18,7 @@ contract ZeckendorfTreasuryTest is Test {
     address public alice = makeAddr("alice");
     address public controller = makeAddr("controller");
 
-    uint256 public constant TOTAL_SUPPLY = 1_618_033_988e18;
+    uint256 public constant TOTAL_SUPPLY = 987_000_000e18;
 
     function setUp() public {
         // Deploy PhiCoin via proxy
@@ -39,7 +39,7 @@ contract ZeckendorfTreasuryTest is Test {
 
     function test_totalAllocated() public view {
         uint256 total = treasury.totalAllocated();
-        assertEq(total, TOTAL_SUPPLY, "Total allocated must equal 1,618,033,988 ARTS");
+        assertEq(total, TOTAL_SUPPLY, "Total allocated must equal 987,000,000 ARTS (F(16))");
     }
 
     function test_distribute() public {
@@ -91,7 +91,7 @@ contract ZeckendorfTreasuryTest is Test {
     }
 
     function test_remaining() public {
-        uint256 communityAllocation = 63_245_986e18;
+        uint256 communityAllocation = 13_000_000e18;
 
         // Before any distribution
         uint256 rem = treasury.remaining(ZeckendorfTreasury.Compartment.CommunityGrants);

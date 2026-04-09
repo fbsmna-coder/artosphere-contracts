@@ -2,7 +2,7 @@
 
 **Whitepaper v1.0 -- March 2026**
 
-F.B. Sapronov, IBG Technologies
+F.B. Sapronov, Independent Researcher
 
 ---
 
@@ -548,6 +548,6 @@ Artosphere introduces mathematical constant-derived tokenomics -- a protocol des
 
 ---
 
-*Copyright 2026 IBG Technologies. All rights reserved.*
+*Copyright 2026 F.B. Sapronov. All rights reserved.*
 *ARTS token has not been audited for mainnet deployment as of the date of this publication.*
 *This document does not constitute financial advice or an offer to sell securities.*

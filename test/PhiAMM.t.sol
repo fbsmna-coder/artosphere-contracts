@@ -48,7 +48,7 @@ contract PhiAMMTest is Test {
         assertEq(amm.reserveARTS(), INITIAL_ARTS, "ARTS reserve mismatch");
         assertEq(amm.reservePaired(), INITIAL_PAIRED, "Paired reserve mismatch");
         assertEq(amm.lpBalance(alice), lp, "LP balance mismatch");
-        assertEq(amm.totalLP(), lp, "Total LP mismatch");
+        assertEq(amm.totalLP(), lp + amm.MINIMUM_LIQUIDITY(), "Total LP mismatch");
     }
 
     function test_swapBuyARTS() public {
@@ -57,7 +57,7 @@ contract PhiAMMTest is Test {
         vm.startPrank(bob);
         paired.approve(address(amm), SWAP_AMOUNT);
         uint256 artsBalBefore = arts.balanceOf(bob);
-        uint256 amountOut = amm.swap(true, SWAP_AMOUNT);
+        uint256 amountOut = amm.swap(true, SWAP_AMOUNT, 0, block.timestamp + 300);
         uint256 artsBalAfter = arts.balanceOf(bob);
         vm.stopPrank();
 
@@ -71,7 +71,7 @@ contract PhiAMMTest is Test {
         vm.startPrank(bob);
         arts.approve(address(amm), SWAP_AMOUNT);
         uint256 pairedBalBefore = paired.balanceOf(bob);
-        uint256 amountOut = amm.swap(false, SWAP_AMOUNT);
+        uint256 amountOut = amm.swap(false, SWAP_AMOUNT, 0, block.timestamp + 300);
         uint256 pairedBalAfter = paired.balanceOf(bob);
         vm.stopPrank();
 
@@ -85,7 +85,7 @@ contract PhiAMMTest is Test {
         // Buy ARTS with SWAP_AMOUNT paired tokens
         vm.startPrank(bob);
         paired.approve(address(amm), SWAP_AMOUNT);
-        uint256 buyOutput = amm.swap(true, SWAP_AMOUNT);
+        uint256 buyOutput = amm.swap(true, SWAP_AMOUNT, 0, block.timestamp + 300);
         vm.stopPrank();
 
         // Reset pool state by deploying fresh
@@ -99,7 +99,7 @@ contract PhiAMMTest is Test {
         // Sell ARTS for SWAP_AMOUNT
         vm.startPrank(bob);
         arts.approve(address(amm2), SWAP_AMOUNT);
-        uint256 sellOutput = amm2.swap(false, SWAP_AMOUNT);
+        uint256 sellOutput = amm2.swap(false, SWAP_AMOUNT, 0, block.timestamp + 300);
         vm.stopPrank();
 
         // Buying should get MORE output than selling (phi-asymmetry)
@@ -118,11 +118,12 @@ contract PhiAMMTest is Test {
         (uint256 artsOut, uint256 pairedOut) = amm.removeLiquidity(lp);
         vm.stopPrank();
 
-        assertEq(artsOut, INITIAL_ARTS, "Should get all ARTS back");
-        assertEq(pairedOut, INITIAL_PAIRED, "Should get all paired back");
+        // After MINIMUM_LIQUIDITY burn, user cannot withdraw 100% of reserves
+        assertGt(artsOut, 0, "Should get ARTS back");
+        assertGt(pairedOut, 0, "Should get paired back");
         assertEq(arts.balanceOf(alice), artsBefore + artsOut, "ARTS balance mismatch");
         assertEq(paired.balanceOf(alice), pairedBefore + pairedOut, "Paired balance mismatch");
-        assertEq(amm.totalLP(), 0, "Total LP should be zero");
+        assertEq(amm.totalLP(), amm.MINIMUM_LIQUIDITY(), "Remaining LP should equal MINIMUM_LIQUIDITY");
     }
 
     function test_getAmountOut_view() public {
@@ -132,7 +133,7 @@ contract PhiAMMTest is Test {
 
         vm.startPrank(bob);
         paired.approve(address(amm), SWAP_AMOUNT);
-        uint256 actualOut = amm.swap(true, SWAP_AMOUNT);
+        uint256 actualOut = amm.swap(true, SWAP_AMOUNT, 0, block.timestamp + 300);
         vm.stopPrank();
 
         assertEq(expectedOut, actualOut, "View should match actual swap output");
@@ -142,7 +143,7 @@ contract PhiAMMTest is Test {
         vm.startPrank(bob);
         paired.approve(address(amm), SWAP_AMOUNT);
         vm.expectRevert("No liquidity");
-        amm.swap(true, SWAP_AMOUNT);
+        amm.swap(true, SWAP_AMOUNT, 0, block.timestamp + 300);
         vm.stopPrank();
     }
 

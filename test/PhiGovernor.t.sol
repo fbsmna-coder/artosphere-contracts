@@ -74,7 +74,7 @@ contract PhiGovernorTest is Test {
     address public bob   = makeAddr("bob");
     address public carol = makeAddr("carol");
 
-    uint256 public constant MAX_SUPPLY = 1_618_033_988 * 1e18;
+    uint256 public constant MAX_SUPPLY = 987_000_000 * 1e18;
 
     MockPhiVotes public token;
     TimelockController public timelock;

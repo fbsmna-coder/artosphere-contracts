@@ -26,6 +26,11 @@ contract PhiMathWrapper {
     function goldenFee(uint256 amount, uint256 phiLevel) external pure returns (uint256) {
         return PhiMath.goldenFee(amount, phiLevel);
     }
+    // Paper VI-VII functions
+    function sin2Theta13() external pure returns (uint256) { return PhiMath.sin2Theta13(); }
+    function higgsCorrection() external pure returns (uint256) { return PhiMath.higgsCorrection(); }
+    function higgsQuarticCoupling(uint256 piWad) external pure returns (uint256) { return PhiMath.higgsQuarticCoupling(piWad); }
+    function mzNormFactor() external pure returns (uint256) { return PhiMath.mzNormFactor(); }
 }
 
 contract PhiMathTest is Test {
@@ -523,5 +528,120 @@ contract PhiMathTest is Test {
         lib.zeckendorf(100);
         uint256 gasUsed = gasBefore - gasleft();
         console2.log("Gas: zeckendorf(100) =", gasUsed);
+    }
+
+    // ====================================================================
+    // PAPER VI-VII: PHYSICS FUNCTIONS (2026-04-09)
+    // ====================================================================
+
+    /// @notice sin²θ₁₃ = φ⁻⁸ + φ⁻¹⁵ ≈ 0.02202 (exp: 0.02200 ± 0.00069)
+    function test_sin2Theta13_value() public view {
+        uint256 result = lib.sin2Theta13();
+        // Expected: ~0.02202 → in WAD: ~22020000000000000
+        // Allow 0.1% tolerance for fixed-point rounding
+        uint256 expectedApprox = 22020000000000000; // 0.02202 WAD
+        assertApproxEqAbs(result, expectedApprox, WAD / 1e4, "sin2Theta13 ~ 0.02202");
+    }
+
+    /// @notice sin²θ₁₃ should equal phiInvPow(8) + phiInvPow(15) exactly
+    function test_sin2Theta13_decomposition() public view {
+        uint256 result = lib.sin2Theta13();
+        uint256 phi8inv = lib.phiInvPow(8);
+        uint256 phi15inv = lib.phiInvPow(15);
+        assertEq(result, phi8inv + phi15inv, "sin2Theta13 = phi^-8 + phi^-15");
+    }
+
+    /// @notice sin²θ₁₃ leading term φ⁻⁸ should dominate (>96%)
+    function test_sin2Theta13_leading_dominates() public view {
+        uint256 phi8inv = lib.phiInvPow(8);
+        uint256 total = lib.sin2Theta13();
+        // φ⁻⁸/total > 0.96
+        uint256 ratio = lib.wadDiv(phi8inv, total);
+        assertTrue(ratio > 960000000000000000, "Leading term phi^-8 should be > 96% of sin2Theta13");
+    }
+
+    /// @notice Higgs correction: Δλ_H = 1/(24φ⁸) ≈ 0.000887
+    function test_higgsCorrection_value() public view {
+        uint256 result = lib.higgsCorrection();
+        // Expected: ~0.000887 → in WAD: ~887000000000000
+        uint256 expectedApprox = 887000000000000; // 0.000887 WAD
+        assertApproxEqAbs(result, expectedApprox, WAD / 1e5, "Higgs correction ~ 0.000887");
+    }
+
+    /// @notice Higgs correction = sin²θ₁₃ (leading) / 24 ≈ φ⁻⁸/24
+    function test_higgsCorrection_is_sin2theta13_over_24() public view {
+        uint256 correction = lib.higgsCorrection();
+        uint256 phi8inv = lib.phiInvPow(8);
+        uint256 phi8over24 = lib.wadDiv(phi8inv, 24 * WAD);
+        // Should be equal (both computed as 1/(24φ⁸))
+        assertApproxEqAbs(correction, phi8over24, 100, "Higgs correction = phi^-8 / 24");
+    }
+
+    /// @notice Higgs quartic coupling: λ_H = (π + 6φ⁹)/(24πφ⁸) ≈ 0.12905
+    function test_higgsQuarticCoupling_value() public view {
+        uint256 piWad = 3_141592653589793238;
+        uint256 result = lib.higgsQuarticCoupling(piWad);
+        // Expected: ~0.12905 → in WAD: ~129050000000000000
+        uint256 expectedApprox = 129050000000000000;
+        assertApproxEqAbs(result, expectedApprox, WAD / 1e3, "lambda_H ~ 0.12905");
+    }
+
+    /// @notice λ_H = tree + CP correction: φ/(4π) + 1/(24φ⁸)
+    function test_higgsQuarticCoupling_decomposition() public view {
+        uint256 piWad = 3_141592653589793238;
+        uint256 lambdaH = lib.higgsQuarticCoupling(piWad);
+        uint256 correction = lib.higgsCorrection();
+        // Tree term = λ_H - correction
+        uint256 tree = lambdaH - correction;
+        // Tree should be φ/(4π) ≈ 0.12877
+        uint256 expectedTree = lib.wadDiv(PHI, 4 * piWad);
+        assertApproxEqAbs(tree, expectedTree, 10, "Tree term = phi/(4pi)");
+    }
+
+    /// @notice Higgs-Flavor Identity: J²_CP(lep) ≈ Δλ_H (ratio ~ 1.05)
+    function test_higgsFlavor_identity() public view {
+        uint256 correction = lib.higgsCorrection();
+        // J_CP^lep ≈ 0.0305 → J² ≈ 0.000930
+        uint256 jCPLep = 30500000000000000; // 0.0305 WAD
+        uint256 jSquared = lib.wadMul(jCPLep, jCPLep);
+        // Ratio J²/Δλ should be ~1.048 (within 10%)
+        uint256 ratio = lib.wadDiv(jSquared, correction);
+        assertApproxEqAbs(ratio, WAD, WAD / 10, "Higgs-Flavor Identity: J^2_CP ~ Delta_lambda_H (within 10%)");
+    }
+
+    /// @notice M_Z normalization: √(8(8φ−3)) ≈ 8.919
+    function test_mzNormFactor_value() public view {
+        uint256 result = lib.mzNormFactor();
+        // 8φ−3 ≈ 9.9443, ×8 = 79.554, √ ≈ 8.919
+        uint256 expectedApprox = 8_919000000000000000;
+        assertApproxEqAbs(result, expectedApprox, WAD / 100, "M_Z norm ~ 8.919");
+    }
+
+    /// @notice M_Z norm squared should equal 8(8φ−3)
+    function test_mzNormFactor_squared() public view {
+        uint256 norm = lib.mzNormFactor();
+        uint256 normSquared = lib.wadMul(norm, norm);
+        // 8(8φ−3) = 64φ − 24 ≈ 79.554
+        uint256 expected = 64 * PHI - 24 * WAD; // 64φ − 24 in WAD
+        // Allow 0.1% tolerance from sqrt rounding
+        assertApproxEqAbs(normSquared, expected, WAD / 100, "norm^2 = 8(8phi-3)");
+    }
+
+    // ====================================================================
+    // GAS: Paper VI-VII functions
+    // ====================================================================
+
+    function test_gas_sin2Theta13() public view {
+        uint256 gasBefore = gasleft();
+        lib.sin2Theta13();
+        uint256 gasUsed = gasBefore - gasleft();
+        console2.log("Gas: sin2Theta13() =", gasUsed);
+    }
+
+    function test_gas_higgsQuarticCoupling() public view {
+        uint256 gasBefore = gasleft();
+        lib.higgsQuarticCoupling(3_141592653589793238);
+        uint256 gasUsed = gasBefore - gasleft();
+        console2.log("Gas: higgsQuarticCoupling() =", gasUsed);
     }
 }

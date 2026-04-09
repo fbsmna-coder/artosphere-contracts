@@ -11,7 +11,7 @@ import "./PhiMath.sol";
 
 /**
  * @title Artosphere (ARTS)
- * @author IBG Technologies
+ * @author F.B. Sapronov
  * @notice ERC-20 token with Fibonacci emission, Proof-of-Patience, Spiral Burn, Anti-Whale limiter,
  *         ERC20Votes, and ERC20Permit for governance.
  */
@@ -25,7 +25,11 @@ contract PhiCoin is
 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    uint256 public constant MAX_SUPPLY = 1_618_033_988 * 1e18;
+    /// @notice Total supply = F(16) × 10⁶ = 987,000,000 ARTS
+    /// @dev F(16) = 987 = 719 + 268: the Fibonacci unification number
+    ///      linking gravity-gauge hierarchy (719/9) with vacuum energy (268).
+    ///      See: Zenodo DOI 10.5281/zenodo.19471249
+    uint256 public constant MAX_SUPPLY = 987_000_000 * 1e18;
     uint256 public constant EPOCH_DURATION = 1200;
 
     uint256 public genesisTimestamp;
@@ -42,12 +46,16 @@ contract PhiCoin is
     // Spiral Burn floor: F(34) = 9,227,465
     uint256 public constant BURN_FLOOR = 9_227_465 * 1e18;
 
-    uint256[43] private __gap; // reduced from 46 by 3 (lastTransferTimestamp, medianBalance, BURN_FLOOR is constant)
+    // Spiral Burn whitelist: exempt addresses (e.g. staking contracts)
+    mapping(address => bool) public spiralBurnExempt;
+
+    uint256[42] private __gap; // reduced by 1 for spiralBurnExempt
 
     event EmissionMinted(address indexed minter, uint256 indexed toEpoch, uint256 amount);
     event MintedTo(address indexed to, uint256 amount);
     event TokensBurned(address indexed burner, uint256 amount);
     event SpiralBurn(address indexed from, uint256 burnAmount, uint256 transferAmount);
+    event SpiralBurnExemptSet(address indexed account, bool exempt);
 
     error ExceedsMaxSupply(uint256 requested, uint256 remaining);
     error NoEmissionAvailable();
@@ -168,6 +176,12 @@ contract PhiCoin is
         medianBalance = _median;
     }
 
+    /// @notice Exempt an address from spiral burn (e.g. staking contracts)
+    function setSpiralBurnExempt(address account, bool exempt) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        spiralBurnExempt[account] = exempt;
+        emit SpiralBurnExemptSet(account, exempt);
+    }
+
     /// @dev Checks if a transfer exceeds the whale limit
     function _antiWhaleCheck(address from, uint256 amount) internal view {
         if (medianBalance == 0) return; // not activated yet
@@ -186,44 +200,39 @@ contract PhiCoin is
     // Transfer overrides (burn-on-transfer + anti-whale + timestamp tracking)
     // =========================================================================
 
-    /// @dev Core transfer logic with spiral burn and anti-whale
-    function _transferWithFeatures(address from, address to, uint256 amount) internal returns (uint256) {
-        // Anti-whale check
-        _antiWhaleCheck(from, amount);
+    // Required overrides for ERC20 + ERC20Votes + ERC20Permit
+    // Spiral burn and anti-whale are applied here inside _update() so that
+    // allowance is always consumed for the full original amount (fixes C1)
+    // and spiral burn exemptions work for staking contracts (fixes C4).
+    function _update(address from, address to, uint256 value)
+        internal override(ERC20Upgradeable, ERC20VotesUpgradeable)
+    {
+        // Anti-whale check (skip mints and burns)
+        if (from != address(0) && to != address(0)) {
+            _antiWhaleCheck(from, value);
+        }
 
-        // Spiral burn on regular transfers (not mint/burn)
+        // Spiral burn on regular transfers (not mint/burn, not exempt addresses)
         uint256 burnAmount = 0;
-        if (from != address(0) && to != address(0) && amount > 0) {
+        if (from != address(0) && to != address(0) && value > 0
+            && !spiralBurnExempt[from] && !spiralBurnExempt[to])
+        {
             uint256 burnRate = spiralBurnRate();
             if (burnRate > 0) {
-                burnAmount = PhiMath.wadMul(amount, burnRate) / 1e18;
+                burnAmount = PhiMath.wadMul(value, burnRate) / 1e18;
                 if (burnAmount > 0 && totalSupply() - burnAmount >= BURN_FLOOR) {
-                    _burn(from, burnAmount);
-                    amount -= burnAmount;
-                    emit SpiralBurn(from, burnAmount, amount);
+                    // Burn from sender, then transfer the remainder
+                    super._update(from, address(0), burnAmount);
+                    emit SpiralBurn(from, burnAmount, value - burnAmount);
+                    value -= burnAmount;
                 } else {
                     burnAmount = 0;
                 }
             }
         }
-        return amount;
-    }
 
-    function transfer(address to, uint256 value) public override(ERC20Upgradeable) returns (bool) {
-        uint256 adjustedValue = _transferWithFeatures(msg.sender, to, value);
-        return super.transfer(to, adjustedValue);
-    }
-
-    function transferFrom(address from, address to, uint256 value) public override(ERC20Upgradeable) returns (bool) {
-        uint256 adjustedValue = _transferWithFeatures(from, to, value);
-        return super.transferFrom(from, to, adjustedValue);
-    }
-
-    // Required overrides for ERC20 + ERC20Votes + ERC20Permit
-    function _update(address from, address to, uint256 value)
-        internal override(ERC20Upgradeable, ERC20VotesUpgradeable)
-    {
         super._update(from, to, value);
+
         // Proof-of-Patience: track last transfer timestamps
         if (from != address(0)) {
             lastTransferTimestamp[from] = block.timestamp;

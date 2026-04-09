@@ -7,10 +7,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PhiMath.sol";
 
 /// @title ZeckendorfTreasury — Treasury with Fibonacci-proportioned compartments
-/// @author IBG Technologies / Artosphere Phase 2
-/// @notice Total supply (1,618,033,988 ARTS) is decomposed into 6 Fibonacci compartments
-///         inspired by the Zeckendorf theorem. Each compartment has a dedicated controller
-///         who can distribute tokens according to its purpose.
+/// @author F.B. Sapronov / Artosphere Phase 2
+/// @notice Total supply F(16) = 987,000,000 ARTS is decomposed into 6 pure Fibonacci
+///         compartments: 987 = 610+233+89+34+13+8 (Zeckendorf theorem).
+///         Each allocation = a Fibonacci number × 10⁶. Community = 61.8% = 1/φ.
 contract ZeckendorfTreasury is Ownable {
     using SafeERC20 for IERC20;
 
@@ -44,15 +44,16 @@ contract ZeckendorfTreasury is Ownable {
     constructor(address _token) Ownable(msg.sender) {
         artsToken = IERC20(_token);
 
-        // Fibonacci-proportioned allocation (Zeckendorf decomposition of 1,618,033,988)
-        // 701,408,733 + 433,494,437 + 267,914,296 + 102,334,155 + 63,245,986 + 49,636,381
-        // = 1,618,033,988
-        _initCompartment(Compartment.LiquidityMining, "Liquidity Mining", 701_408_733e18);
-        _initCompartment(Compartment.EcosystemTreasury, "Ecosystem Treasury", 433_494_437e18);
-        _initCompartment(Compartment.StakingRewards, "Staking Rewards", 267_914_296e18);
-        _initCompartment(Compartment.TeamVesting, "Team Vesting", 102_334_155e18);
-        _initCompartment(Compartment.CommunityGrants, "Community Grants", 63_245_986e18);
-        _initCompartment(Compartment.InsuranceFund, "Insurance Fund", 49_636_381e18);
+        // Pure Fibonacci Zeckendorf decomposition of F(16) = 987 (million ARTS):
+        // 987 = 610 + 233 + 89 + 34 + 13 + 8
+        // Each allocation = a Fibonacci number × 10⁶
+        // Community (Liquidity) = 610M = 61.8% = 1/φ of total
+        _initCompartment(Compartment.LiquidityMining, "Liquidity Mining", 610_000_000e18);   // F(15) = 610
+        _initCompartment(Compartment.EcosystemTreasury, "Ecosystem Treasury", 233_000_000e18); // F(13) = 233
+        _initCompartment(Compartment.StakingRewards, "Staking Rewards", 89_000_000e18);       // F(11) = 89
+        _initCompartment(Compartment.TeamVesting, "Team Vesting", 34_000_000e18);             // F(9) = 34
+        _initCompartment(Compartment.CommunityGrants, "Community Grants", 13_000_000e18);     // F(7) = 13
+        _initCompartment(Compartment.InsuranceFund, "Insurance Fund", 8_000_000e18);          // F(6) = 8
     }
 
     function _initCompartment(Compartment comp, string memory name, uint256 allocation) internal {

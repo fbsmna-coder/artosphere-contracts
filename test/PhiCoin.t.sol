@@ -48,7 +48,7 @@ contract PhiCoinTest is Test {
     }
 
     function test_MaxSupply() public view {
-        assertEq(phiCoin.MAX_SUPPLY(), 1_618_033_988 * 1e18);
+        assertEq(phiCoin.MAX_SUPPLY(), 987_000_000 * 1e18); // F(16) × 10⁶
     }
 
     function test_InitialSupplyIsZero() public view {

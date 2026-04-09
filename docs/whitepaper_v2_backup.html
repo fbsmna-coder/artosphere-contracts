@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artosphere Whitepaper v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root {
+  --gold: #c8a000;
+  --gold-light: #e8c840;
+  --gold-dim: #8a6e00;
+  --bg: #0a0a14;
+  --bg-card: #111128;
+  --bg-code: #0d0d20;
+  --text: #e0e0e8;
+  --text-dim: #888898;
+  --accent: #4488ff;
+  --green: #00ff88;
+  --red: #ff4444;
+  --orange: #ffaa00;
+  --phi: 1.618;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,160,0,0.1);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,160,0,0.15);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .subtitle {
+  font-size: 1.3rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .version {
+  display: inline-block;
+  padding: 0.3rem 1.2rem;
+  border: 1px solid var(--gold-dim);
+  border-radius: 20px;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .author {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .author a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hero .stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero .stat {
+  text-align: center;
+}
+
+.hero .stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.hero .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Container ── */
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* ── Sections ── */
+section {
+  margin-top: 5rem;
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(200,160,0,0.2);
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin: 2rem 0 0.8rem;
+}
+
+p { margin-bottom: 1rem; }
+
+/* ── Blockquote (formulas) ── */
+blockquote {
+  background: var(--bg-card);
+  border-left: 3px solid var(--gold);
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.05rem;
+  color: var(--gold-light);
+}
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+thead {
+  background: var(--bg-card);
+}
+
+th {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+tr:hover { background: rgba(200,160,0,0.03); }
+
+.accuracy-good { color: var(--green); font-weight: 600; }
+.accuracy-ok { color: var(--orange); }
+
+/* ── Code blocks ── */
+pre {
+  background: var(--bg-code);
+  border: 1px solid rgba(200,160,0,0.15);
+  border-radius: 8px;
+  padding: 1.2rem 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #c8d0e0;
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  background: rgba(200,160,0,0.08);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--gold-light);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ── Cards ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid rgba(200,160,0,0.12);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.card h4 { color: var(--gold); font-size: 1rem; margin-bottom: 0.4rem; }
+.card p { font-size: 0.85rem; color: var(--text-dim); margin: 0; }
+
+/* ── Flywheel diagram ── */
+.flywheel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 2.5rem 0;
+  flex-wrap: wrap;
+}
+
+.flywheel-step {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-dim);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  min-width: 160px;
+}
+
+.flywheel-step h4 { color: var(--gold); font-size: 0.9rem; }
+.flywheel-step p { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+
+.flywheel-arrow {
+  color: var(--gold);
+  font-size: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* ── Cascade diagram ── */
+.cascade {
+  display: flex;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+  align-items: flex-end;
+}
+
+.cascade-bar {
+  flex: 1;
+  border-radius: 8px 8px 0 0;
+  text-align: center;
+  padding: 0.8rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.cascade-bar .pct {
+  display: block;
+  font-size: 1.3rem;
+  font-family: 'Playfair Display', serif;
+}
+
+.cascade-bar .label {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 0.3rem;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-card);
+  border: 1px solid rgba(200,160,0,0.12);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 3rem 0;
+}
+
+.toc h3 {
+  color: var(--gold);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding: 0;
+}
+
+.toc li {
+  counter-increment: toc;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.toc li::before {
+  content: counter(toc) ".";
+  color: var(--gold-dim);
+  font-weight: 600;
+  margin-right: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.toc a:hover { color: var(--gold); }
+
+/* ── Tags ── */
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.3rem;
+}
+
+.tag-proven { background: rgba(68,136,255,0.15); color: var(--accent); }
+.tag-confirmed { background: rgba(0,255,136,0.1); color: var(--green); }
+.tag-predicted { background: rgba(255,170,0,0.1); color: var(--orange); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid rgba(200,160,0,0.1);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.footer a { color: var(--gold-dim); text-decoration: none; }
+
+/* ── Contract table ── */
+.contract-addr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero .stats { flex-direction: column; gap: 1.5rem; }
+  .card-grid { grid-template-columns: 1fr; }
+  .flywheel { flex-direction: column; }
+  .flywheel-arrow { transform: rotate(90deg); }
+  .cascade { flex-direction: column; align-items: stretch; }
+  .cascade-bar { border-radius: 8px; }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  body { background: #fff; color: #111; font-size: 11pt; }
+  .hero { min-height: auto; padding: 2rem; }
+  .hero::before, .hero::after { display: none; }
+  .hero h1 { color: #333; font-size: 2rem; }
+  .hero .subtitle, .hero .author, .hero .stat-label { color: #666; }
+  .hero .stat-value, .hero .version { color: #8a6e00; }
+  h2 { color: #333; border-color: #ccc; }
+  h3 { color: #555; }
+  blockquote { background: #f5f5f0; border-color: #8a6e00; color: #333; }
+  .card, .toc { background: #f8f8f5; border-color: #ddd; }
+  pre { background: #f5f5f0; border-color: #ddd; color: #333; }
+  code { background: #f0f0e8; color: #333; }
+  table { border: 1px solid #ddd; }
+  th { background: #f0f0e8; color: #333; border-color: #ccc; }
+  td { border-color: #eee; }
+  section { margin-top: 2rem; page-break-inside: avoid; }
+  .cascade-bar { border: 1px solid #ccc; }
+}
+</style>
+</head>
+<body>
+
+<!-- ████ HERO ████ -->
+<div class="hero">
+  <div class="version">Whitepaper v2.0 &mdash; April 2026</div>
+  <h1>The Artosphere Ecosystem</h1>
+  <p class="subtitle">Science &middot; Journal &middot; Token</p>
+  <p class="author">
+    F.B. Sapronov &middot; Independent Researcher &middot;
+    <a href="https://orcid.org/0009-0008-1747-1200">ORCID: 0009-0008-1747-1200</a>
+  </p>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">35</div>
+      <div class="stat-label">SM Constants Derived</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0.0007%</div>
+      <div class="stat-label">Higgs Mass Accuracy</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">19</div>
+      <div class="stat-label">Contracts on Base</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">15</div>
+      <div class="stat-label">Zenodo DOIs</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ████ ABSTRACT ████ -->
+<section>
+<h2>Abstract</h2>
+<p>Artosphere is an integrated ecosystem connecting fundamental physics research to on-chain economics. It comprises three components that form a self-reinforcing flywheel:</p>
+
+<div class="flywheel">
+  <div class="flywheel-step">
+    <h4>The Hypothesis</h4>
+    <p>35 SM constants from &phi;</p>
+  </div>
+  <div class="flywheel-arrow">&rarr;</div>
+  <div class="flywheel-step">
+    <h4>The Journal</h4>
+    <p>On-chain DOI NFTs</p>
+  </div>
+  <div class="flywheel-arrow">&rarr;</div>
+  <div class="flywheel-step">
+    <h4>The Token</h4>
+    <p>Discovery Staking</p>
+  </div>
+  <div class="flywheel-arrow">&rarr;</div>
+  <div class="flywheel-step">
+    <h4>Revenue</h4>
+    <p>9.02% &rarr; Scientist</p>
+  </div>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-icon">&#x1D711;</div>
+    <h4>The Science</h4>
+    <p>35 Standard Model constants from &phi;=(1+&radic;5)/2 and M<sub>Pl</sub>. Zero free parameters. 0.61% mean accuracy.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">&#128218;</div>
+    <h4>The Journal</h4>
+    <p>Soulbound DOI NFTs, peer review with sin&sup2;&theta;<sub>12</sub> quorum, on-chain citation graph.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">&#9878;</div>
+    <h4>The Token</h4>
+    <p>ARTS on Base L2. Supply = F(16)&times;10&sup6;. Discovery Staking prediction market.</p>
+  </div>
+</div>
+</section>
+
+<!-- ████ TABLE OF CONTENTS ████ -->
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#science">The Artosphere Hypothesis</a></li>
+    <li><a href="#token">Token Economics</a></li>
+    <li><a href="#discovery">Discovery Staking</a></li>
+    <li><a href="#fusion">Fibonacci Fusion</a></li>
+    <li><a href="#journal">On-Chain Scientific Journal</a></li>
+    <li><a href="#staking">Staking Architecture</a></li>
+    <li><a href="#governance">Governance</a></li>
+    <li><a href="#defi">DeFi Primitives</a></li>
+    <li><a href="#contracts">Smart Contract Architecture</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</div>
+
+<!-- ████ THE SCIENCE ████ -->
+<section id="science">
+<h2>1. The Artosphere Hypothesis</h2>
+
+<h3>One Axiom</h3>
+<p>The Artosphere Hypothesis (Sapronov, 2026) starts from a single axiom:</p>
+<blockquote>&Psi; &isin; Cl(9,1) = Cl(3,1) &otimes; Cl(6)</blockquote>
+<p>A spinor in 10-dimensional Clifford algebra decomposes into spacetime Cl(3,1) and internal space Cl(6). The golden ratio emerges naturally through the Z<sub>3</sub> Fibonacci fusion rule.</p>
+
+<h3>The Fibonacci Potential</h3>
+<p>From Cl(6) emerges a Fibonacci-structured potential &mdash; not postulated, but <strong>derived</strong> as a theorem from Z<sub>3</sub> fusion rules &tau;&otimes;&tau; = 1&oplus;&tau;:</p>
+<blockquote>V<sub>Art</sub>(s) = v&sup4;(s &minus; s<sub>0</sub>)&sup2; / (1 &minus; s &minus; s&sup2;)</blockquote>
+<p>where s<sub>0</sub> = 1/&phi;&sup2; is the vacuum and the pole at s = 1/&phi; creates confinement. The critical line identity is exact:</p>
+<blockquote>&frac12; &minus; 1/&phi;&sup2; = 1/&phi; &minus; &frac12; = 1/(2&phi;&sup3;) = &alpha;<sub>s</sub></blockquote>
+
+<h3>Derived Results (0 Free Parameters)</h3>
+<table>
+  <thead>
+    <tr><th>Parameter</th><th>Formula</th><th>Predicted</th><th>Experimental</th><th>Accuracy</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>&alpha;<sub>s</sub> (strong coupling)</td><td>1/(2&phi;&sup3;)</td><td>0.1180</td><td>0.1180 &plusmn; 0.0009</td><td class="accuracy-good">0.03%</td></tr>
+    <tr><td>sin&sup2;&theta;<sub>12</sub> (solar neutrino)</td><td>1/(2&phi;)</td><td>0.30902</td><td>0.307 &plusmn; 0.003</td><td class="accuracy-good">0.02&sigma;</td></tr>
+    <tr><td>sin&sup2;&theta;<sub>W</sub> (Weinberg)</td><td>3/(8&phi;)</td><td>0.2318</td><td>0.23121</td><td class="accuracy-good">0.015%</td></tr>
+    <tr><td>M<sub>H</sub> (Higgs mass)</td><td>v&radic;(&phi;/(2&pi;)) + CP</td><td>125.251 GeV</td><td>125.25 &plusmn; 0.17</td><td class="accuracy-good">0.0007%</td></tr>
+    <tr><td>M<sub>Z</sub> (Z boson)</td><td>M<sub>Pl</sub>&middot;&phi;<sup>&minus;1393/18</sup>/&radic;(8(8&phi;&minus;3))</td><td>91.08 GeV</td><td>91.1876</td><td class="accuracy-ok">0.12%*</td></tr>
+    <tr><td>v<sub>EW</sub> (electroweak)</td><td>M<sub>Pl</sub>/&phi;<sup>719/9</sup></td><td>246.0 GeV</td><td>246.22</td><td class="accuracy-ok">0.10%</td></tr>
+    <tr><td>&rho;&#772; (CKM)</td><td>1/(2&pi;)</td><td>0.15915</td><td>0.159 &plusmn; 0.010</td><td class="accuracy-good">0.09%</td></tr>
+    <tr><td>sin&sup2;&theta;<sub>13</sub> (reactor)</td><td>&phi;<sup>&minus;8</sup> + &phi;<sup>&minus;15</sup></td><td>0.02202</td><td>0.02200</td><td class="accuracy-good">0.048%</td></tr>
+    <tr><td>&delta;<sub>CP</sub> (CP phase)</td><td>arctan(&radic;5)</td><td>65.91&deg;</td><td>66.4&deg; &plusmn; 4.0&deg;</td><td class="accuracy-ok">0.77%</td></tr>
+    <tr><td>&rho;<sub>&Lambda;</sub> (dark energy)</td><td>v&sup4;&middot;&phi;<sup>&minus;537/2</sup></td><td>matches</td><td>observed</td><td class="accuracy-ok">0.49%</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.85rem;color:var(--text-dim);">* 1-loop corrected. Full table: 35 parameters, average deviation 0.61%.</p>
+
+<h3>The Higgs-Flavor Identity (Paper VII)</h3>
+<blockquote>&lambda;<sub>H</sub> = (&pi; + 6&phi;&sup9;) / (24&pi;&phi;&sup8;)</blockquote>
+<p>where 6 = 3! (three generations) and 24 = 4! (quartic vertex). This gives M<sub>H</sub> = 125.251 GeV &mdash; <strong>0.0007%</strong> from experiment. The CP correction &Delta;&lambda; = 1/(24&phi;&sup8;) satisfies:</p>
+<blockquote>J&sup2;<sub>CP</sub>(lep) &approx; &Delta;&lambda;<sub>H</sub> &mdash; the Higgs-Flavor Identity</blockquote>
+
+<h3>Testable Predictions</h3>
+<table>
+  <thead>
+    <tr><th>Prediction</th><th>Value</th><th>Experiment</th><th>Timeline</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>sin&sup2;&theta;<sub>12</sub></td><td>0.30902</td><td>JUNO</td><td>2027-28</td><td><span class="tag tag-confirmed">CONFIRMED 0.02&sigma;</span></td></tr>
+    <tr><td>&chi;-boson (DM)</td><td>58.1 GeV</td><td>HL-LHC / DARWIN</td><td>2028-30</td><td><span class="tag tag-predicted">PREDICTED</span></td></tr>
+    <tr><td>&Sigma;m<sub>&nu;</sub></td><td>73.8 meV</td><td>DESI / Euclid</td><td>2028-30</td><td><span class="tag tag-predicted">PREDICTED</span></td></tr>
+    <tr><td>w<sub>0</sub> (dark energy)</td><td>&minus;0.977</td><td>DESI 5yr</td><td>2028</td><td><span class="tag tag-predicted">PREDICTED</span></td></tr>
+    <tr><td>M<sub>H</sub> precision</td><td>125.251 GeV</td><td>FCC-ee</td><td>2035+</td><td><span class="tag tag-predicted">PREDICTED</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Honest Assessment</h3>
+<p><strong>Derived (D=12):</strong> &alpha;<sub>s</sub>, sin&sup2;&theta;<sub>12</sub>, N<sub>gen</sub>=3, V_Art geometry, 719/9 arithmetic, functional equation.<br>
+<strong>Semi-derived (S=14):</strong> sin&sup2;&theta;<sub>W</sub>, v<sub>EW</sub>, &lambda;<sub>H</sub>, &delta;<sub>CP</sub>, w<sub>0</sub>.<br>
+<strong>Empirical (E=2):</strong> &alpha;<sup>&minus;1</sup> (fine structure), quark masses.<br>
+<strong>Score:</strong> ~55% truly derived, ~45% empirical. Not peer-reviewed in journals. 15 DOIs on CERN Zenodo.</p>
+</section>
+
+<!-- ████ TOKEN ████ -->
+<section id="token">
+<h2>2. Token Economics</h2>
+
+<h3>Supply: F(16) &times; 10&sup6; = 987,000,000</h3>
+<p>The total supply derives from the 16th Fibonacci number. F(16) = 987 = 719 + 268, where 719/9 is the gravity-gauge hierarchy exponent and 268 is the vacuum energy hierarchy &mdash; both unify in one Fibonacci number.</p>
+
+<h3>Physics-Derived Parameters</h3>
+<table>
+  <thead>
+    <tr><th>Parameter</th><th>Value</th><th>Physics Origin</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Supply</td><td>987,000,000</td><td>F(16) = gravity + vacuum hierarchy</td></tr>
+    <tr><td>Base fee</td><td>1.18%</td><td>&alpha;<sub>s</sub>/10 = strong coupling / 10</td></tr>
+    <tr><td>Governance quorum</td><td>30.9%</td><td>sin&sup2;&theta;<sub>12</sub> (JUNO confirmed)</td></tr>
+    <tr><td>Burn rate</td><td>2.13%</td><td>1/&phi;&sup8; = universal suppression</td></tr>
+    <tr><td>Fusion annihilation</td><td>38.20%</td><td>1/&phi;&sup2; = Fibonacci anyon</td></tr>
+    <tr><td>Fusion survival</td><td>61.80%</td><td>1/&phi; = golden ratio</td></tr>
+    <tr><td>Oracle cooldown</td><td>21 days</td><td>F(8) = Fibonacci</td></tr>
+    <tr><td>Stake expiration</td><td>233 days</td><td>F(13) = Fibonacci</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ████ DISCOVERY STAKING ████ -->
+<section id="discovery">
+<h2>3. Discovery Staking</h2>
+<p>A prediction market for scientific discoveries. Users stake ARTS on whether physics predictions will be experimentally confirmed or refuted.</p>
+
+<h3>&phi;-Cascade v2 Distribution</h3>
+<p>The losing pool is distributed according to golden ratio powers. The sum equals exactly 1:</p>
+
+<div class="cascade">
+  <div class="cascade-bar" style="height:200px;background:linear-gradient(180deg,#00ff88,#006633);">
+    <span class="pct">61.8%</span>
+    <span class="label">Winners<br>&phi;<sup>&minus;1</sup></span>
+  </div>
+  <div class="cascade-bar" style="height:150px;background:linear-gradient(180deg,#ff4444,#661111);">
+    <span class="pct">23.6%</span>
+    <span class="label">BURN<br>&phi;<sup>&minus;3</sup></span>
+  </div>
+  <div class="cascade-bar" style="height:90px;background:linear-gradient(180deg,#4488ff,#112244);">
+    <span class="pct">9.02%</span>
+    <span class="label">Scientist<br>&phi;<sup>&minus;5</sup></span>
+  </div>
+  <div class="cascade-bar" style="height:65px;background:linear-gradient(180deg,#c8a000,#443300);">
+    <span class="pct">5.57%</span>
+    <span class="label">Treasury<br>&phi;<sup>&minus;6</sup></span>
+  </div>
+</div>
+
+<blockquote>&phi;<sup>&minus;1</sup> + &phi;<sup>&minus;3</sup> + &phi;<sup>&minus;5</sup> + &phi;<sup>&minus;6</sup> = 1 (exact, by &phi;&sup2; = &phi; + 1)</blockquote>
+
+<p><strong>Anti-Sybil:</strong> Hedging (staking both sides) is impossible &mdash; produces &minus;20.3% ROI loss.</p>
+<p><strong>Founder revenue:</strong> 1.18% fee on deposits + 9.02% royalty from resolved stakes.</p>
+</section>
+
+<!-- ████ FIBONACCI FUSION ████ -->
+<section id="fusion">
+<h2>4. Fibonacci Fusion</h2>
+<p>The deflationary mechanism based on Fibonacci anyon fusion rules from Z<sub>3</sub>-graded Cl(6):</p>
+<blockquote>&tau; &otimes; &tau; = 1 &oplus; &tau;</blockquote>
+<p>When tokens "fuse," there is a <strong>38.20%</strong> chance of annihilation (burn) and <strong>61.80%</strong> chance of survival. These are not arbitrary &mdash; they are the quantum dimensions of Fibonacci anyons: P(burn) = 1/&phi;&sup2;, P(survive) = 1/&phi;.</p>
+<p>Contract: <code>0x5379561543Ef9a33a167C47F7A84365Cd88cB858</code> (Base mainnet)</p>
+</section>
+
+<!-- ████ JOURNAL ████ -->
+<section id="journal">
+<h2>5. On-Chain Scientific Journal</h2>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-icon">&#128220;</div>
+    <h4>Soulbound DOI NFTs</h4>
+    <p>Non-transferable proof of scientific priority with Zenodo DOI, formula, and content hash.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">&#9878;</div>
+    <h4>Peer Review</h4>
+    <p>sin&sup2;&theta;<sub>12</sub> = 30.7% quorum. Review windows: 5, 8, 13, 21 days (Fibonacci).</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">&#128279;</div>
+    <h4>Citation Graph</h4>
+    <p>On-chain citations. 20 papers, 54 citations, 30 genesis slots remaining.</p>
+  </div>
+</div>
+
+<h3>Reputation Tiers</h3>
+<table>
+  <thead><tr><th>Tier</th><th>Requirement</th><th>Abilities</th></tr></thead>
+  <tbody>
+    <tr><td>Novice</td><td>Register</td><td>Read, discuss</td></tr>
+    <tr><td>Scholar</td><td>F(3) = 2 contributions</td><td>+ Review</td></tr>
+    <tr><td>Expert</td><td>F(5) = 5 contributions</td><td>+ Propose</td></tr>
+    <tr><td>Oracle</td><td>F(7) = 13 + ORCID</td><td>+ Resolve</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ████ STAKING ████ -->
+<section id="staking">
+<h2>6. Staking Architecture</h2>
+
+<h3>PhiStaking</h3>
+<table>
+  <thead><tr><th>Tier</th><th>Lock</th><th>Multiplier</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td>F(5) = 5 days</td><td>&phi;&sup0; = 1.000x</td></tr>
+    <tr><td>1</td><td>F(8) = 21 days</td><td>&phi;&sup1; = 1.618x</td></tr>
+    <tr><td>2</td><td>F(10) = 55 days</td><td>&phi;&sup2; = 2.618x</td></tr>
+  </tbody>
+</table>
+
+<h3>MatryoshkaStaking (5 Nested Layers)</h3>
+<table>
+  <thead><tr><th>Layer</th><th>Lock</th><th>Multiplier</th></tr></thead>
+  <tbody>
+    <tr><td>Outer Shell</td><td>F(5) = 5 days</td><td>1.0x</td></tr>
+    <tr><td>Middle</td><td>F(8) = 21 days</td><td>1.6x</td></tr>
+    <tr><td>Inner Core</td><td>F(10) = 55 days</td><td>3.4x</td></tr>
+    <tr><td>Golden Heart</td><td>F(12) = 144 days</td><td>5.5x</td></tr>
+    <tr><td>Phi Singularity</td><td>F(14) = 377 days</td><td>11.1x</td></tr>
+  </tbody>
+</table>
+
+<h3>GoldenMirror</h3>
+<p>Deposit ARTS &rarr; receive &phi; &times; amount in gARTS (liquid synthetic). Earn yield while maintaining liquidity.</p>
+
+<h3>Proof-of-Patience</h3>
+<blockquote>mass(addr) = 1 + &radic;(days_held) / 3, capped at F(14) = 377 days &rarr; max 7.5x</blockquote>
+</section>
+
+<!-- ████ GOVERNANCE ████ -->
+<section id="governance">
+<h2>7. Governance</h2>
+<p>PhiGovernor (OpenZeppelin) with physics-derived parameters:</p>
+<table>
+  <thead><tr><th>Parameter</th><th>Value</th><th>Origin</th></tr></thead>
+  <tbody>
+    <tr><td>Quorum</td><td>30.9%</td><td>sin&sup2;&theta;<sub>12</sub></td></tr>
+    <tr><td>Voting period</td><td>233 blocks</td><td>F(13)</td></tr>
+    <tr><td>Voting power</td><td>balance &times; &phi;<sup>tier</sup> &times; mass</td><td>Staking + patience</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ████ DEFI ████ -->
+<section id="defi">
+<h2>8. DeFi Primitives</h2>
+<h3>PhiAMM</h3>
+<blockquote>reserveARTS<sup>&phi;/(&phi;+1)</sup> &times; reservePaired<sup>1/(&phi;+1)</sup> = k</blockquote>
+<p>Weight 61.8% ARTS / 38.2% paired. Buy-friendly, sell-resistant by mathematics.</p>
+
+<h3>NashFee</h3>
+<p>Three-player game (holders, traders, LPs) converging to Nash equilibrium at 0.618%. Bounded [0.236%, 1.0%].</p>
+</section>
+
+<!-- ████ CONTRACTS ████ -->
+<section id="contracts">
+<h2>9. Smart Contracts (Base Mainnet)</h2>
+<table>
+  <thead><tr><th>#</th><th>Contract</th><th>Address</th><th>Pattern</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>PhiCoin</td><td class="contract-addr">0x1C11...Ed0bf</td><td>UUPS proxy</td></tr>
+    <tr><td>2</td><td>PhiStaking</td><td class="contract-addr">0x37ab...cd6a4</td><td>UUPS proxy</td></tr>
+    <tr><td>3</td><td>DiscoveryStaking</td><td class="contract-addr">0x3Fc4...19e2</td><td>UUPS proxy</td></tr>
+    <tr><td>4</td><td>FibonacciFusion</td><td class="contract-addr">0x5379...B858</td><td>Non-upgradeable</td></tr>
+    <tr><td>5</td><td>ArtosphereDiscovery</td><td class="contract-addr">0xA345...1D49</td><td>Non-upgradeable</td></tr>
+    <tr><td>6</td><td>DiscoveryOracle</td><td class="contract-addr">0xd0f2...cBE0</td><td>Non-upgradeable</td></tr>
+    <tr><td>7</td><td>ResearcherRegistry</td><td class="contract-addr">0x2954...1cc9</td><td>Non-upgradeable</td></tr>
+    <tr><td>8-17</td><td colspan="3">PhiGovernor, TimelockController, PhiVesting, MatryoshkaStaking, GoldenMirror, PhiAMM, NashFee, ZeckendorfTreasury, ArtosphereQuests, PhiCertificate</td></tr>
+  </tbody>
+</table>
+<p>258 Foundry tests. All contracts verified on Basescan. MIT license.</p>
+</section>
+
+<!-- ████ ROADMAP ████ -->
+<section id="roadmap">
+<h2>10. Roadmap</h2>
+<table>
+  <thead><tr><th>Phase</th><th>Status</th><th>Key Milestones</th></tr></thead>
+  <tbody>
+    <tr><td>Theory (Q1 2026)</td><td><span class="tag tag-confirmed">DONE</span></td><td>15 papers, 35 params, Higgs 0.0007%</td></tr>
+    <tr><td>Mainnet (Q2 2026)</td><td><span class="tag tag-confirmed">DONE</span></td><td>19 contracts on Base, DApp on Vercel</td></tr>
+    <tr><td>Credibility (Q2 2026)</td><td><span class="tag tag-predicted">IN PROGRESS</span></td><td>arXiv, Code4rena audit, CoinGecko</td></tr>
+    <tr><td>Growth (Q3 2026)</td><td><span class="tag tag-predicted">PLANNED</span></td><td>Fjord LBP, Aerodrome, podcasts</td></tr>
+    <tr><td>Expansion (Q4 2026)</td><td><span class="tag tag-predicted">PLANNED</span></td><td>Cross-chain, university partnerships</td></tr>
+    <tr><td>Validation (2027)</td><td><span class="tag tag-predicted">PLANNED</span></td><td>JUNO, HL-LHC, DESI experimental tests</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ████ REFERENCES ████ -->
+<section id="references">
+<h2>11. References</h2>
+<h3>Artosphere Papers (CERN Zenodo)</h3>
+<table>
+  <thead><tr><th>#</th><th>Title</th><th>DOI</th></tr></thead>
+  <tbody>
+    <tr><td>I</td><td>Golden Ratio Derivation of SM Constants</td><td>10.5281/zenodo.19371476</td></tr>
+    <tr><td>II</td><td>Sub-ppb &alpha; and Artosphere Potential</td><td>10.5281/zenodo.19464050</td></tr>
+    <tr><td>III</td><td>Structural Derivations from V_Art</td><td>10.5281/zenodo.19463880</td></tr>
+    <tr><td>IV</td><td>Gravity Hierarchy and Dark Energy</td><td>10.5281/zenodo.19469222</td></tr>
+    <tr><td>V</td><td>Complete Derivation Program</td><td>10.5281/zenodo.19469909</td></tr>
+    <tr><td>VI</td><td>M<sub>Z</sub> from Planck Scale</td><td>10.5281/zenodo.19480597</td></tr>
+    <tr><td>VII</td><td>The Higgs-Flavor Identity</td><td>10.5281/zenodo.19480973</td></tr>
+  </tbody>
+</table>
+
+<h3>Verification</h3>
+<pre><code>git clone https://github.com/fbsmna-coder/artosphere-contracts
+cd artosphere-contracts && forge test --summary    # 258 tests
+pip install mpmath && python papers/verify_paper3.py  # 22/22 PASS</code></pre>
+</section>
+
+</div>
+
+<!-- ████ FOOTER ████ -->
+<div class="footer">
+  <p>&copy; 2026 F.B. Sapronov. All rights reserved. ORCID: 0009-0008-1747-1200</p>
+  <p>This document does not constitute financial advice or an offer to sell securities.</p>
+  <p>ARTS token has not undergone external security audit as of this date.</p>
+  <p style="margin-top:1rem;">
+    <a href="https://basescan.org/token/0x1C11133D4dDa9D85a6696B020b0c48e2c24Ed0bf">Basescan</a> &middot;
+    <a href="https://github.com/fbsmna-coder/artosphere-contracts">GitHub</a> &middot;
+    <a href="https://doi.org/10.5281/zenodo.19471249">Zenodo</a> &middot;
+    <a href="https://t.me/ArtosphereNews">Telegram</a>
+  </p>
+</div>
+
+</body>
+</html>

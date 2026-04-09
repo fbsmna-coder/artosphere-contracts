@@ -20,7 +20,7 @@ import {NashFee} from "../src/NashFee.sol";
 import {ZeckendorfTreasury} from "../src/ZeckendorfTreasury.sol";
 
 /// @title DeployArtosphere — Full Protocol Deployment Script
-/// @author IBG Technologies
+/// @author F.B. Sapronov
 /// @notice Deploys all Artosphere (ARTS) protocol contracts with correct dependency ordering
 contract DeployArtosphere is Script {
     // Placeholder for paired token in AMM (use WETH on mainnet)

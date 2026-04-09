@@ -9,7 +9,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {PhiMath} from "./PhiMath.sol";
 
 /// @title PhiVesting — Fibonacci Vesting Schedule for PhiCoin
-/// @author IBG Technologies
+/// @author F.B. Sapronov
 /// @notice Token vesting where unlocks happen at Fibonacci month boundaries:
 ///
 ///   Milestone:  0    1    2    3    4    5    6    7

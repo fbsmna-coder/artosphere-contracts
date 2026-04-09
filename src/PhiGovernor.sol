@@ -8,6 +8,7 @@ import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extens
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {PhiMath} from "./PhiMath.sol";
+import {ArtosphereConstants} from "./ArtosphereConstants.sol";
 
 /// @notice Minimal interface to read a user's staking tier from PhiStaking.
 interface IPhiStaking {
@@ -29,7 +30,7 @@ contract PhiGovernor is Governor, GovernorSettings, GovernorVotes, GovernorTimel
     uint256 public constant PROPOSAL_THRESHOLD_EXP = 8;
     uint256 public constant QUORUM_EXP = 4;
     uint256 public constant SUPERMAJORITY_THRESHOLD = PhiMath.PHI_INV;
-    uint256 public constant MAX_SUPPLY = 1_618_033_988 * 1e18;
+    uint256 public constant MAX_SUPPLY = ArtosphereConstants.TOTAL_SUPPLY; // 987_000_000 * 1e18
     uint256 public constant MAX_LOCK_TIER = 5;
 
     IPhiStaking public stakingContract;

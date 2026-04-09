@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./PhiMath.sol";
 
 /// @title MatryoshkaStaking — 5-layer nested staking where one deposit earns across ALL tiers simultaneously
-/// @author IBG Technologies / Artosphere Phase 2
+/// @author F.B. Sapronov / Artosphere Phase 2
 /// @notice Depositing into tier N automatically enrolls you in tiers 0..N.
 ///         Reward multiplier per layer: φ^(layer), so layers give 1x, φx, φ²x, φ³x, φ⁴x.
 ///         Total reward for tier 4 = sum of all layers = (φ⁵-1)/(φ-1) ≈ 11.09x base.
@@ -39,6 +39,9 @@ contract MatryoshkaStaking is ReentrancyGuard, Ownable {
     event Staked(address indexed user, uint256 amount, uint256 layer, uint256 lockEnd);
     event Unstaked(address indexed user, uint256 amount, uint256 reward);
     event EmergencyWithdraw(address indexed user, uint256 returned, uint256 penalized);
+    event RewardFundDepleted(uint256 shortfall);
+
+    error InsufficientRewardFunds(uint256 available, uint256 required);
 
     constructor(address _token) Ownable(msg.sender) {
         artsToken = IERC20(_token);
@@ -101,6 +104,12 @@ contract MatryoshkaStaking is ReentrancyGuard, Ownable {
         return sum;
     }
 
+    /// @notice Returns the reward fund balance (contract balance minus staked principal)
+    function rewardFundBalance() external view returns (uint256) {
+        uint256 balance = artsToken.balanceOf(address(this));
+        return balance > totalStaked ? balance - totalStaked : 0;
+    }
+
     function unstake() external nonReentrant {
         Stake storage s = stakes[msg.sender];
         require(s.active, "No active stake");
@@ -113,16 +122,14 @@ contract MatryoshkaStaking is ReentrancyGuard, Ownable {
         delete stakes[msg.sender];
 
         artsToken.safeTransfer(msg.sender, principal);
-        if (reward > 0 && artsToken.balanceOf(address(this)) >= principal + reward) {
-            // Contract must have enough beyond other stakers' principal
-            artsToken.safeTransfer(msg.sender, reward);
-        } else if (reward > 0) {
-            // Transfer whatever is available beyond principal already sent
+        if (reward > 0) {
             uint256 available = artsToken.balanceOf(address(this));
-            if (available > 0) {
-                uint256 toSend = reward > available ? available : reward;
-                artsToken.safeTransfer(msg.sender, toSend);
+            if (available < reward) {
+                uint256 shortfall = reward - available;
+                emit RewardFundDepleted(shortfall);
+                revert InsufficientRewardFunds(available, reward);
             }
+            artsToken.safeTransfer(msg.sender, reward);
         }
 
         emit Unstaked(msg.sender, principal, reward);

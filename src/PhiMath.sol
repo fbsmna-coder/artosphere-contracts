@@ -293,8 +293,77 @@ library PhiMath {
     }
 
     // ========================================================================
+    // PHYSICS: Paper VI-VII Derived Functions (2026-04-09)
+    // ========================================================================
+
+    /// @notice Reactor neutrino angle: sin²θ₁₃ = φ⁻⁸ + φ⁻¹⁵
+    /// @dev Leading φ⁻⁸ from Cl(6) spinor dim, sub-leading φ⁻¹⁵ from 3-form ladder.
+    ///      Same φ⁻⁸ controls burn rate, dark energy, χ mixing (P<10⁻⁵).
+    ///      Experimental: 0.02200 ± 0.00069, prediction: 0.02202 (0.048%)
+    /// @return sin2theta13 sin²θ₁₃ in WAD
+    function sin2Theta13() internal pure returns (uint256 sin2theta13) {
+        sin2theta13 = phiInvPow(8) + phiInvPow(15);
+    }
+
+    /// @notice Higgs CP-violation correction: Δλ_H = 1/(24φ⁸)
+    /// @dev = [V_Art(0)]²/4! where V_Art(0) = 1/φ⁴ and 24 = (N_gen+1)!
+    ///      Connects Higgs quartic coupling to neutrino CP violation.
+    ///      Higgs-Flavor Identity: J²_CP(lep) ≈ Δλ_H (ratio = 1.048)
+    ///      Zenodo: Paper VII (DOI: 10.5281/zenodo.19480973)
+    /// @return correction Δλ_H in WAD
+    function higgsCorrection() internal pure returns (uint256 correction) {
+        uint256 phi8 = phiPow(8);
+        correction = wadDiv(WAD, 24 * phi8);
+    }
+
+    /// @notice Higgs quartic coupling: λ_H = (π + 6φ⁹)/(24πφ⁸)
+    /// @dev = φ/(4π) + 1/(24φ⁸). First term = tree-level, second = CP correction.
+    ///      Predicts M_H = 125.251 GeV (0.0007% = 0.005σ from experiment).
+    ///      6 = N_gen! = 3!, 24 = (N_gen+1)! = 4!
+    /// @param piWad π in WAD representation (3_141592653589793238)
+    /// @return lambdaH The Higgs quartic coupling in WAD
+    function higgsQuarticCoupling(uint256 piWad) internal pure returns (uint256 lambdaH) {
+        // Tree: φ/(4π)
+        uint256 treeTerm = wadDiv(PHI, 4 * piWad);
+        // CP correction: 1/(24φ⁸)
+        uint256 cpTerm = higgsCorrection();
+        lambdaH = treeTerm + cpTerm;
+    }
+
+    /// @notice M_Z normalization factor: √(8(8φ−3))
+    /// @dev From spectral action on Cl(9,1). 8φ−3 = V_Art gauge factor.
+    ///      M_Z = M_Pl · φ^{−1393/18} / √(8(8φ−3))
+    ///      Zenodo: Paper VI-b (DOI: 10.5281/zenodo.19480597)
+    /// @return norm The normalization factor in WAD
+    function mzNormFactor() internal pure returns (uint256 norm) {
+        // 8φ − 3 = 8×PHI/WAD − 3 → in WAD: 8*PHI − 3*WAD
+        uint256 inner = 8 * PHI - 3 * WAD; // (8φ−3) in WAD
+        uint256 product = 8 * inner;        // 8(8φ−3) in WAD (extra WAD factor)
+        // Normalize: product is 8*(8*PHI - 3*WAD) = 8*PHI*8 - 8*3*WAD
+        // But we need wadMul semantics. product/WAD = 8(8φ−3) as number.
+        // √(product/WAD) in WAD = √(product) * √(WAD)
+        // Use Babylonian method for sqrt in WAD
+        norm = _wadSqrt(product);
+    }
+
+    // ========================================================================
     // PRIVATE HELPERS
     // ========================================================================
+
+    /// @notice Integer square root (Babylonian method) for WAD values
+    /// @dev Returns √(x * WAD) to maintain WAD precision
+    function _wadSqrt(uint256 x) private pure returns (uint256) {
+        if (x == 0) return 0;
+        // We want √(x) in WAD: result = √(x × WAD)
+        uint256 scaled = x * WAD;
+        uint256 z = scaled;
+        uint256 y = (z + 1) / 2;
+        while (y < z) {
+            z = y;
+            y = (z + scaled / z) / 2;
+        }
+        return z;
+    }
 
     /// @notice 2x2 matrix multiplication in WAD arithmetic
     /// @dev Computes [[a,b],[c,d]] * [[e,f],[g,h]] where all entries are WAD-scaled

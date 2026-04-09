@@ -26,8 +26,13 @@ contract PhiAMM is ReentrancyGuard {
     // Fee: golden fee 0.618%
     uint256 public constant FEE_WAD = 6180339887498948; // 0.00618 in WAD
 
+    uint256 public constant MINIMUM_LIQUIDITY = 1000;
+
     uint256 public totalLP;
     mapping(address => uint256) public lpBalance;
+
+    error SlippageExceeded(uint256 amountOut, uint256 minAmountOut);
+    error DeadlineExpired(uint256 deadline, uint256 timestamp);
 
     event Swap(address indexed user, bool buyARTS, uint256 amountIn, uint256 amountOut, uint256 fee);
     event LiquidityAdded(address indexed user, uint256 artsAmount, uint256 pairedAmount, uint256 lpMinted);
@@ -48,7 +53,11 @@ contract PhiAMM is ReentrancyGuard {
         if (totalLP == 0) {
             // Initial liquidity — LP tokens = geometric mean of deposits
             lpMinted = sqrt(artsAmount * pairedAmount);
-            require(lpMinted > 0, "Insufficient initial liquidity");
+            require(lpMinted > MINIMUM_LIQUIDITY, "Insufficient initial liquidity");
+            // Burn MINIMUM_LIQUIDITY to address(0) to prevent LP share inflation attack
+            lpMinted -= MINIMUM_LIQUIDITY;
+            totalLP += MINIMUM_LIQUIDITY;
+            lpBalance[address(0)] += MINIMUM_LIQUIDITY;
         } else {
             // Proportional deposit
             uint256 lpFromArts = (artsAmount * totalLP) / reserveARTS;
@@ -85,7 +94,8 @@ contract PhiAMM is ReentrancyGuard {
     /// @notice Swap tokens using phi-weighted constant product
     /// @param buyARTS true = buy ARTS with paired token, false = sell ARTS for paired token
     /// @param amountIn amount of input token
-    function swap(bool buyARTS, uint256 amountIn) external nonReentrant returns (uint256 amountOut) {
+    function swap(bool buyARTS, uint256 amountIn, uint256 minAmountOut, uint256 deadline) external nonReentrant returns (uint256 amountOut) {
+        if (block.timestamp > deadline) revert DeadlineExpired(deadline, block.timestamp);
         require(amountIn > 0, "Zero input");
         require(reserveARTS > 0 && reservePaired > 0, "No liquidity");
 
@@ -121,6 +131,8 @@ contract PhiAMM is ReentrancyGuard {
             reserveARTS += amountIn;
             reservePaired -= amountOut;
         }
+
+        if (amountOut < minAmountOut) revert SlippageExceeded(amountOut, minAmountOut);
 
         emit Swap(msg.sender, buyARTS, amountIn, amountOut, fee);
     }
