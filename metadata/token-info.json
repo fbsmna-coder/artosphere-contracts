@@ -1,0 +1,13 @@
+{
+    "name": "Artosphere",
+    "symbol": "ARTS",
+    "address": "0x54E9D42A9c9A0Cb853Ed41C152d29e180eEd1D94",
+    "chain": "base",
+    "chainId": 8453,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/fbsmna-coder/artosphere-contracts/main/logo.png",
+    "description": "The first cryptocurrency backed by peer-verifiable physics. Every protocol parameter derived from the golden ratio and Cl(9,1). 13 DOIs on CERN Zenodo.",
+    "website": "https://github.com/fbsmna-coder/artosphere-contracts",
+    "twitter": "@FSspronov",
+    "telegram": "ArtosphereCommunity"
+}
